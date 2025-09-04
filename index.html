@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analizador IA de Lógica Proposicional</title>
+    <title>Analizador IA Avanzado - Lógica Proposicional</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -196,7 +196,7 @@
             text-align: center;
             border-radius: 8px;
             cursor: pointer;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -206,6 +206,12 @@
         
         .upload-area:hover {
             border-color: var(--secondary);
+            background-color: #f8f9fa;
+        }
+        
+        .upload-area.drag-over {
+            border-color: var(--secondary);
+            background-color: #e3f2fd;
         }
         
         .upload-icon {
@@ -219,6 +225,7 @@
             margin-top: 15px;
             border-radius: 8px;
             display: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         
         .chat-container {
@@ -392,6 +399,35 @@
             transition: width 0.5s ease-in-out;
         }
         
+        .exercise-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .exercise-type-btn {
+            padding: 8px 15px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .exercise-type-btn.active {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .hint-box {
+            background: #e3f2fd;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid var(--info);
+        }
+        
         @media (max-width: 900px) {
             .container {
                 grid-template-columns: 1fr;
@@ -406,21 +442,62 @@
                 border-left: none;
                 border-top: 1px solid #eee;
             }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+        
+        .typing-indicator {
+            display: flex;
+            padding: 10px;
+            background: var(--ai-bubble);
+            border-radius: 18px;
+            align-self: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #888;
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-robot"></i> Analizador IA - Lógica Proposicional</h1>
-            <p class="subtitle">Sube imágenes de problemas y obtén soluciones paso a paso</p>
+            <h1><i class="fas fa-robot"></i> Analizador IA Avanzado - Lógica Proposicional</h1>
+            <p class="subtitle">IA mejorada que analiza tus respuestas escritas y proporciona retroalimentación detallada</p>
         </header>
         
         <div class="problem-section">
             <h2><i class="fas fa-pencil-alt"></i> Ejercicio Actual</h2>
             
+            <div class="exercise-selector">
+                <button class="exercise-type-btn active" onclick="changeExerciseType('basic')">Básico</button>
+                <button class="exercise-type-btn" onclick="changeExerciseType('truth-table')">Tablas de Verdad</button>
+                <button class="exercise-type-btn" onclick="changeExerciseType('circuit')">Circuitos Lógicos</button>
+            </div>
+            
             <div class="exercise">
-                <h3>Problema #1</h3>
+                <h3>Problema #1 <span class="exercise-difficulty">(Básico)</span></h3>
                 <div class="exercise-content">
                     Dadas las proposiciones:
                     p: "5 es un número primo"
@@ -428,6 +505,10 @@
                     
                     Determine el valor de verdad de:
                     p ∧ q, p ∨ q, p → q
+                </div>
+                
+                <div class="hint-box">
+                    <strong><i class="fas fa-lightbulb"></i> Sugerencia:</strong> Recuerda que una conjunción (∧) es verdadera solo cuando ambas proposiciones son verdaderas.
                 </div>
             </div>
             
@@ -470,19 +551,19 @@
         </div>
         
         <div class="assistant-section">
-            <h2><i class="fas fa-robot"></i> Asistente IA</h2>
+            <h2><i class="fas fa-robot"></i> Asistente IA Avanzado</h2>
             
             <div class="chat-container" id="chatContainer">
                 <div class="message ai-message">
-                    ¡Hola! Soy tu asistente de lógica proposicional. ¿En qué puedo ayudarte hoy?
+                    ¡Hola! Soy tu asistente avanzado de lógica proposicional. Analizaré tus respuestas escritas y te proporcionaré retroalimentación detallada.
                 </div>
                 <div class="message ai-message">
-                    Puedes subir una imagen de un problema y te ayudaré a resolverlo paso a paso.
+                    Puedes escribir tus soluciones, subir imágenes de problemas o hacerme preguntas directas.
                 </div>
             </div>
             
             <div class="message-input">
-                <input type="text" id="userInput" placeholder="Escribe tu pregunta aquí...">
+                <input type="text" id="userInput" placeholder="Escribe tu pregunta aquí..." onkeypress="handleKeyPress(event)">
                 <button class="send-btn" onclick="sendMessage()">
                     <i class="fas fa-paper-plane"></i>
                 </button>
@@ -490,76 +571,174 @@
         </div>
         
         <footer>
-            <p>Analizador IA de Lógica Proposicional - Basado en "Fundamentos de la Matemática" de Jorge Sáenz</p>
+            <p>Analizador IA Avanzado de Lógica Proposicional - Basado en "Fundamentos de la Matemática" de Jorge Sáenz</p>
         </footer>
     </div>
 
     <script>
-        // Ejercicios predefinidos
-        const exercises = [
-            {
-                id: 1,
-                content: `Dadas las proposiciones:
+        // Ejercicios predefinidos por tipo
+        const exercises = {
+            basic: [
+                {
+                    id: 1,
+                    content: `Dadas las proposiciones:
 p: "5 es un número primo"
 q: "4 < 2"
                         
 Determine el valor de verdad de:
 p ∧ q, p ∨ q, p → q`,
-                solution: {
-                    steps: [
-                        "p: '5 es un número primo' → Verdadero (1)",
-                        "q: '4 < 2' → Falso (0)",
-                        "p ∧ q = 1 ∧ 0 = 0 (Falso)",
-                        "p ∨ q = 1 ∨ 0 = 1 (Verdadero)",
-                        "p → q = 1 → 0 = 0 (Falso)"
-                    ]
+                    solution: {
+                        steps: [
+                            "p: '5 es un número primo' → Verdadero (1)",
+                            "q: '4 < 2' → Falso (0)",
+                            "p ∧ q = 1 ∧ 0 = 0 (Falso)",
+                            "p ∨ q = 1 ∨ 0 = 1 (Verdadero)",
+                            "p → q = 1 → 0 = 0 (Falso)"
+                        ]
+                    }
+                },
+                {
+                    id: 2,
+                    content: `Dadas las proposiciones:
+p: "π es un número racional"
+q: "√4 = 2"
+                        
+Determine el valor de verdad de:
+p ∨ q, p ∧ q, ¬p`,
+                    solution: {
+                        steps: [
+                            "p: 'π es un número racional' → Falso (0)",
+                            "q: '√4 = 2' → Verdadero (1)",
+                            "p ∨ q = 0 ∨ 1 = 1 (Verdadero)",
+                            "p ∧ q = 0 ∧ 1 = 0 (Falso)",
+                            "¬p = ¬0 = 1 (Verdadero)"
+                        ]
+                    }
                 }
-            },
-            {
-                id: 2,
-                content: `Construya la tabla de verdad para la proposición:
+            ],
+            "truth-table": [
+                {
+                    id: 1,
+                    content: `Construya la tabla de verdad para la proposición:
 (p ∨ q) ∧ ¬p`,
-                solution: {
-                    steps: [
-                        "Primero identificamos las variables: p, q",
-                        "Construimos las columnas para p, q, p ∨ q, ¬p, y (p ∨ q) ∧ ¬p",
-                        "Completamos todas las combinaciones posibles de valores de verdad",
-                        "Evaluamos p ∨ q para cada combinación",
-                        "Evaluamos ¬p para cada combinación",
-                        "Finalmente evaluamos (p ∨ q) ∧ ¬p"
-                    ]
+                    solution: {
+                        steps: [
+                            "Primero identificamos las variables: p, q",
+                            "Construimos las columnas para p, q, p ∨ q, ¬p, y (p ∨ q) ∧ ¬p",
+                            "Completamos todas las combinaciones posibles de valores de verdad",
+                            "Evaluamos p ∨ q para cada combinación",
+                            "Evaluamos ¬p para cada combinación",
+                            "Finalmente evaluamos (p ∨ q) ∧ ¬p"
+                        ]
+                    }
+                },
+                {
+                    id: 2,
+                    content: `Construya la tabla de verdad para la proposición:
+(p → q) ∧ (q → p)`,
+                    solution: {
+                        steps: [
+                            "Esta expresión es equivalente a p ↔ q (bicondicional)",
+                            "La bicondicional es verdadera cuando p y q tienen el mismo valor de verdad",
+                            "Construimos la tabla con todas las combinaciones de p y q",
+                            "Evaluamos p → q para cada combinación",
+                            "Evaluamos q → p para cada combinación",
+                            "Finalmente evaluamos la conjunción de ambos condicionales"
+                        ]
+                    }
                 }
-            },
-            {
-                id: 3,
-                content: `Diseñe el circuito lógico para la expresión:
+            ],
+            circuit: [
+                {
+                    id: 1,
+                    content: `Diseñe el circuito lógico para la expresión:
 (p ∧ q) ∨ (¬p ∧ r)`,
-                solution: {
-                    steps: [
-                        "Identificamos las compuertas necesarias: AND, OR y NOT",
-                        "Diseñamos la parte (p ∧ q) con una compuerta AND",
-                        "Diseñamos la parte (¬p ∧ r) con un NOT seguido de una AND",
-                        "Combinamos ambas partes con una compuerta OR",
-                        "Dibujamos el diagrama completo del circuito"
-                    ]
+                    solution: {
+                        steps: [
+                            "Identificamos las compuertas necesarias: AND, OR y NOT",
+                            "Diseñamos la parte (p ∧ q) con una compuerta AND",
+                            "Diseñamos la parte (¬p ∧ r) con un NOT seguido de una AND",
+                            "Combinamos ambas partes con una compuerta OR",
+                            "Dibujamos el diagrama completo del circuito"
+                        ]
+                    }
+                },
+                {
+                    id: 2,
+                    content: `Diseñe el circuito lógico para la expresión:
+¬(p ∨ q) ∧ r`,
+                    solution: {
+                        steps: [
+                            "Identificamos las compuertas necesarias: OR, NOT y AND",
+                            "Primero diseñamos (p ∨ q) con una compuerta OR",
+                            "Aplicamos la negación ¬(p ∨ q) con una compuerta NOT",
+                            "Finalmente combinamos con r usando una compuerta AND",
+                            "Dibujamos el diagrama completo del circuito"
+                        ]
+                    }
                 }
-            }
-        ];
-
-        // Respuestas predefinidas del asistente IA
-        const aiResponses = {
-            "hola": "¡Hola! ¿En qué puedo ayudarte con lógica proposicional?",
-            "ayuda": "Puedo ayudarte con: valores de verdad, tablas de verdad, circuitos lógicos y equivalencias lógicas. ¿Qué necesitas?",
-            "verdad": "El valor de verdad de una proposición es su cualidad de ser verdadera (1) o falsa (0).",
-            "conjuncion": "La conjunción (p ∧ q) es verdadera solo cuando ambas proposiciones son verdaderas.",
-            "disyuncion": "La disyunción (p ∨ q) es falsa solo cuando ambas proposiciones son falsas.",
-            "condicional": "El condicional (p → q) es falso solo cuando p es verdadera y q es falsa.",
-            "tabla": "Una tabla de verdad muestra todos los posibles valores de verdad de una proposición compuesta.",
-            "circuito": "Los circuitos lógicos representan proposiciones usando compuertas AND, OR y NOT.",
-            "default": "No estoy seguro de entender. ¿Podrías reformular tu pregunta?"
+            ]
         };
 
-        // Función para verificar la solución
+        let currentExerciseType = 'basic';
+        let currentExerciseIndex = 0;
+
+        // Respuestas predefinidas del asistente IA mejorado
+        const aiResponses = {
+            "hola": "¡Hola! Soy tu asistente avanzado de lógica proposicional. Puedo analizar tus respuestas escritas, explicarte conceptos y ayudarte a resolver problemas. ¿En qué necesitas ayuda?",
+            "ayuda": "Puedo ayudarte con: valores de verdad, tablas de verdad, circuitos lógicos, equivalencias lógicas y más. También puedo analizar tus respuestas escritas y proporcionarte retroalimentación detallada.",
+            "verdad": "El valor de verdad de una proposición es su cualidad de ser verdadera (1) o falsa (0). En lógica proposicional, trabajamos con estos dos valores.",
+            "conjuncion": "La conjunción (p ∧ q) es verdadera solo cuando ambas proposiciones son verdaderas. Su tabla de verdad es: p=1, q=1 → 1; p=1, q=0 → 0; p=0, q=1 → 0; p=0, q=0 → 0.",
+            "disyuncion": "La disyunción (p ∨ q) es falsa solo cuando ambas proposiciones son falsas. Su tabla de verdad es: p=1, q=1 → 1; p=1, q=0 → 1; p=0, q=1 → 1; p=0, q=0 → 0.",
+            "condicional": "El condicional (p → q) es falso solo cuando p es verdadera y q es falsa. Su tabla de verdad es: p=1, q=1 → 1; p=1, q=0 → 0; p=0, q=1 → 1; p=0, q=0 → 1.",
+            "tabla": "Una tabla de verdad muestra todos los posibles valores de verdad de una proposición compuesta. Para n variables, hay 2^n combinaciones posibles.",
+            "circuito": "Los circuitos lógicos representan proposiciones usando compuertas AND, OR y NOT. Cada compuerta corresponde a un operador lógico específico.",
+            "default": "No estoy seguro de entender completamente. ¿Podrías reformular tu pregunta o ser más específico? Estoy aquí para ayudarte con conceptos de lógica proposicional."
+        };
+
+        // Función para cambiar el tipo de ejercicio
+        function changeExerciseType(type) {
+            currentExerciseType = type;
+            currentExerciseIndex = 0;
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.exercise-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Cargar nuevo ejercicio
+            loadExercise();
+            
+            addMessage(`He cambiado a ejercicios de ${getExerciseTypeName(type)}. ¿Necesitas ayuda con este tipo de problemas?`, "ai");
+        }
+        
+        function getExerciseTypeName(type) {
+            const names = {
+                'basic': 'lógica básica',
+                'truth-table': 'tablas de verdad',
+                'circuit': 'circuitos lógicos'
+            };
+            return names[type] || type;
+        }
+        
+        // Función para cargar el ejercicio actual
+        function loadExercise() {
+            const exercise = exercises[currentExerciseType][currentExerciseIndex];
+            document.querySelector('.exercise-content').textContent = exercise.content;
+            document.querySelector('.exercise-difficulty').textContent = `(${getExerciseTypeName(currentExerciseType)})`;
+            
+            // Limpiar feedback
+            document.getElementById('feedbackSection').innerHTML = `
+                <h3><i class="fas fa-comment-dots"></i> Retroalimentación</h3>
+                <p>Aquí verás el análisis de tu respuesta y correcciones si es necesario.</p>
+            `;
+            
+            // Limpiar área de texto
+            document.getElementById('userSolution').value = '';
+        }
+
+        // Función mejorada para verificar la solución con IA avanzada
         function checkSolution() {
             const userSolution = document.getElementById('userSolution').value;
             const feedbackSection = document.getElementById('feedbackSection');
@@ -572,92 +751,158 @@ p ∧ q, p ∨ q, p → q`,
                 return;
             }
             
-            // Análisis simple de la respuesta (simulación de IA)
-            let feedbackHTML = `
-                <h3><i class="fas fa-comment-dots"></i> Análisis de tu respuesta</h3>
-                <p><i class="fas fa-check-circle" style="color: var(--success);"></i> Correcto: Has identificado bien los valores de verdad de las proposiciones simples.</p>
-            `;
+            // Mostrar indicador de typing
+            showTypingIndicator();
             
-            if (!userSolution.includes("0") || !userSolution.includes("Falso")) {
-                feedbackHTML += `
-                    <p><i class="fas fa-exclamation-circle" style="color: var(--accent);"></i> Revisar: Parece que no has identificado correctamente que p ∧ q es falso.</p>
+            // Simular procesamiento con IA
+            setTimeout(() => {
+                // Análisis avanzado de la respuesta (simulación de IA mejorada)
+                const exercise = exercises[currentExerciseType][currentExerciseIndex];
+                let feedbackHTML = `
+                    <h3><i class="fas fa-comment-dots"></i> Análisis Detallado de tu Respuesta</h3>
                 `;
+                
+                // Análisis basado en el tipo de ejercicio
+                if (currentExerciseType === 'basic') {
+                    feedbackHTML += analyzeBasicSolution(userSolution, exercise);
+                } else if (currentExerciseType === 'truth-table') {
+                    feedbackHTML += analyzeTruthTableSolution(userSolution, exercise);
+                } else if (currentExerciseType === 'circuit') {
+                    feedbackHTML += analyzeCircuitSolution(userSolution, exercise);
+                }
+                
+                feedbackSection.innerHTML = feedbackHTML;
+                
+                // Añadir mensaje del asistente
+                addMessage("He analizado tu solución en detalle. ¿Hay algún concepto específico que te gustaría que explique más a fondo?", "ai");
+            }, 2000);
+        }
+
+        // Función para analizar soluciones de lógica básica
+        function analyzeBasicSolution(userSolution, exercise) {
+            let analysis = '';
+            const lowerSolution = userSolution.toLowerCase();
+            
+            // Detectar valores de verdad correctos
+            if (lowerSolution.includes("verdadero") || lowerSolution.includes("1") || lowerSolution.includes("true")) {
+                analysis += `<p><i class="fas fa-check-circle" style="color: var(--success);"></i> Correcto: Has identificado valores verdaderos adecuadamente.</p>`;
             }
             
-            if (!userSolution.includes("1") || !userSolution.includes("Verdadero")) {
-                feedbackHTML += `
-                    <p><i class="fas fa-exclamation-circle" style="color: var(--accent);"></i> Revisar: Parece que no has identificado correctamente que p ∨ q es verdadero.</p>
-                `;
+            if (lowerSolution.includes("falso") || lowerSolution.includes("0") || lowerSolution.includes("false")) {
+                analysis += `<p><i class="fas fa-check-circle" style="color: var(--success);"></i> Correcto: Has identificado valores falsos adecuadamente.</p>`;
             }
             
-            feedbackHTML += `
-                <p><i class="fas fa-lightbulb" style="color: var(--warning);"></i> Sugerencia: Recuerda que el condicional p → q es falso solo cuando p es verdadero y q es falso.</p>
+            // Detectar operadores lógicos
+            if (lowerSolution.includes("∧") || lowerSolution.includes("y") || lowerSolution.includes("conjunción")) {
+                analysis += `<p><i class="fas fa-check-circle" style="color: var(--success);"></i> Correcto: Has reconocido la conjunción (∧).</p>`;
+            }
+            
+            if (lowerSolution.includes("∨") || lowerSolution.includes("o") || lowerSolution.includes("disyunción")) {
+                analysis += `<p><i class="fas fa-check-circle" style="color: var(--success);"></i> Correcto: Has reconocido la disyunción (∨).</p>`;
+            }
+            
+            if (lowerSolution.includes("→") || lowerSolution.includes("entonces") || lowerSolution.includes("condicional")) {
+                analysis += `<p><i class="fas fa-check-circle" style="color: var(--success);"></i> Correcto: Has reconocido el condicional (→).</p>`;
+            }
+            
+            // Detectar posibles errores
+            if (!lowerSolution.includes("falso") && !lowerSolution.includes("0") && !lowerSolution.includes("false")) {
+                analysis += `<p><i class="fas fa-exclamation-circle" style="color: var(--accent);"></i> Revisar: No parece que hayas identificado valores falsos. Recuerda que p ∧ q es falso cuando al menos una proposición es falsa.</p>`;
+            }
+            
+            if ((lowerSolution.includes("verdadero") || lowerSolution.includes("1")) && 
+                !lowerSolution.includes("falso") && !lowerSolution.includes("0")) {
+                analysis += `<p><i class="fas fa-exclamation-circle" style="color: var(--accent);"></i> Revisar: Parece que solo has identificado valores verdaderos. Recuerda que en lógica proposicional hay dos valores posibles: verdadero y falso.</p>`;
+            }
+            
+            analysis += `
+                <p><i class="fas fa-lightbulb" style="color: var(--warning);"></i> Sugerencia: Siempre verifica ambos valores de verdad (verdadero y falso) para cada operación lógica.</p>
+                <p><i class="fas fa-star" style="color: var(--info);"></i> Mi análisis detectó que comprendes los conceptos básicos, pero debes prestar atención a los casos donde las proposiciones son falsas.</p>
             `;
             
-            feedbackSection.innerHTML = feedbackHTML;
+            return analysis;
+        }
+
+        // Función para analizar soluciones de tablas de verdad
+        function analyzeTruthTableSolution(userSolution, exercise) {
+            let analysis = `
+                <p><i class="fas fa-check-circle" style="color: var(--success);"></i> He detectado que estás trabajando con tablas de verdad.</p>
+            `;
             
-            // Añadir mensaje del asistente
-            addMessage("He revisado tu solución. Tienes algunos errores comunes. ¿Necesitas que te explique algún concepto en particular?", "ai");
+            if (userSolution.includes("combinación") || userSolution.includes("combinaciones")) {
+                analysis += `<p><i class="fas fa-check-circle" style="color: var(--success);"></i> Correcto: Has considerado las combinaciones de valores de verdad.</p>`;
+            } else {
+                analysis += `<p><i class="fas fa-exclamation-circle" style="color: var(--accent);"></i> Revisar: Para tablas de verdad, es importante considerar todas las combinaciones posibles de valores de verdad.</p>`;
+            }
+            
+            if (userSolution.includes("variable") || userSolution.includes("variables")) {
+                analysis += `<p><i class="fas fa-check-circle" style="color: var(--success);"></i> Correcto: Has identificado las variables proposicionales.</p>`;
+            }
+            
+            analysis += `
+                <p><i class="fas fa-lightbulb" style="color: var(--warning);"></i> Sugerencia: Para n variables, una tabla de verdad tiene 2^n filas. Asegúrate de incluir todas las combinaciones posibles.</p>
+                <p><i class="fas fa-star" style="color: var(--info);"></i> Mi análisis sugiere que comprendes la estructura de las tablas de verdad, pero debes verificar que hayas incluido todas las combinaciones posibles.</p>
+            `;
+            
+            return analysis;
+        }
+
+        // Función para analizar soluciones de circuitos lógicos
+        function analyzeCircuitSolution(userSolution, exercise) {
+            let analysis = `
+                <p><i class="fas fa-check-circle" style="color: var(--success);"></i> He detectado que estás trabajando con circuitos lógicos.</p>
+            `;
+            
+            if (userSolution.includes("compuerta") || userSolution.includes("compuertas")) {
+                analysis += `<p><i class="fas fa-check-circle" style="color: var(--success);"></i> Correcto: Has identificado las compuertas lógicas.</p>`;
+            } else {
+                analysis += `<p><i class="fas fa-exclamation-circle" style="color: var(--accent);"></i> Revisar: Para circuitos lógicos, es importante identificar las compuertas (AND, OR, NOT) correspondientes.</p>`;
+            }
+            
+            if (userSolution.includes("AND") || userSolution.includes("OR") || userSolution.includes("NOT")) {
+                analysis += `<p><i class="fas fa-check-circle" style="color: var(--success);"></i> Correcto: Has reconocido los tipos de compuertas lógicas.</p>`;
+            }
+            
+            analysis += `
+                <p><i class="fas fa-lightbulb" style="color: var(--warning);"></i> Sugerencia: Recuerda que AND representa la conjunción (∧), OR la disyunción (∨) y NOT la negación (¬).</p>
+                <p><i class="fas fa-star" style="color: var(--info);"></i> Mi análisis indica que comprendes la relación entre operadores lógicos y compuertas, pero asegúrate de verificar todas las conexiones en tu circuito.</p>
+            `;
+            
+            return analysis;
         }
 
         // Función para mostrar la solución completa
         function showSolution() {
+            const exercise = exercises[currentExerciseType][currentExerciseIndex];
             addMessage("Claro, aquí está la solución paso a paso para el ejercicio actual:", "ai");
             
-            // Simular延时 para mostrar los pasos uno por uno
-            setTimeout(() => {
-                addMessage("Paso 1: Identificar valores de verdad de las proposiciones simples", "ai");
-            }, 800);
+            // Mostrar indicador de typing
+            showTypingIndicator();
             
+            // Mostrar pasos de solución después de un breve delay
             setTimeout(() => {
-                addMessage("p: '5 es un número primo' → Verdadero (1)", "ai");
-            }, 1600);
-            
-            setTimeout(() => {
-                addMessage("q: '4 < 2' → Falso (0)", "ai");
-            }, 2400);
-            
-            setTimeout(() => {
-                addMessage("Paso 2: Evaluar p ∧ q (conjunción)", "ai");
-            }, 3200);
-            
-            setTimeout(() => {
-                addMessage("p ∧ q = 1 ∧ 0 = 0 (Falso)", "ai");
-            }, 4000);
-            
-            setTimeout(() => {
-                addMessage("Paso 3: Evaluar p ∨ q (disyunción)", "ai");
-            }, 4800);
-            
-            setTimeout(() => {
-                addMessage("p ∨ q = 1 ∨ 0 = 1 (Verdadero)", "ai");
-            }, 5600);
-            
-            setTimeout(() => {
-                addMessage("Paso 4: Evaluar p → q (condicional)", "ai");
-            }, 6400);
-            
-            setTimeout(() => {
-                addMessage("p → q = 1 → 0 = 0 (Falso)", "ai");
-                addMessage("¿Te quedó claro? ¿Necesitas que explique algún paso en detalle?", "ai");
-            }, 7200);
+                exercise.solution.steps.forEach((step, index) => {
+                    setTimeout(() => {
+                        addMessage(step, "ai");
+                        
+                        // Preguntar si necesita ayuda después del último paso
+                        if (index === exercise.solution.steps.length - 1) {
+                            setTimeout(() => {
+                                addMessage("¿Te quedó claro? ¿Necesitas que explique algún paso en detalle?", "ai");
+                            }, 500);
+                        }
+                    }, (index + 1) * 800);
+                });
+            }, 1000);
         }
 
         // Función para generar un nuevo ejercicio
         function newExercise() {
-            const randomIndex = Math.floor(Math.random() * exercises.length);
-            const exercise = exercises[randomIndex];
+            // Avanzar al siguiente ejercicio (circular)
+            currentExerciseIndex = (currentExerciseIndex + 1) % exercises[currentExerciseType].length;
+            loadExercise();
             
-            document.querySelector('.exercise-content').textContent = exercise.content;
-            document.getElementById('feedbackSection').innerHTML = `
-                <h3><i class="fas fa-comment-dots"></i> Retroalimentación</h3>
-                <p>Aquí verás el análisis de tu respuesta y correcciones si es necesario.</p>
-            `;
-            
-            // Limpiar el área de texto
-            document.getElementById('userSolution').value = '';
-            
-            addMessage(`He generado un nuevo ejercicio para ti. ¿Necesitas ayuda para resolverlo?`, "ai");
+            addMessage(`He generado un nuevo ejercicio de ${getExerciseTypeName(currentExerciseType)}. ¿Necesitas ayuda para resolverlo?`, "ai");
         }
 
         // Función para limpiar todo
@@ -669,6 +914,31 @@ p ∧ q, p ∨ q, p → q`,
             `;
             
             addMessage("He limpiado tu área de trabajo. ¿En qué puedo ayudarte ahora?", "ai");
+        }
+
+        // Función para mostrar indicador de typing
+        function showTypingIndicator() {
+            const chatContainer = document.getElementById('chatContainer');
+            const typingIndicator = document.createElement('div');
+            typingIndicator.classList.add('typing-indicator');
+            typingIndicator.id = 'typingIndicator';
+            
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('div');
+                dot.classList.add('typing-dot');
+                typingIndicator.appendChild(dot);
+            }
+            
+            chatContainer.appendChild(typingIndicator);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Función para ocultar indicador de typing
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
         }
 
         // Función para manejar la subida de imágenes
@@ -722,8 +992,8 @@ p ∧ q, p ∨ q, p → q`,
                         addMessage("La tabla de verdad corresponde a la expresión: (p ∨ q) ∧ ¬p", "ai");
                         addMessage("¿Te gustaría que te muestre cómo construir esta tabla paso a paso?", "ai");
                         
-                        // Cambiar a un ejercicio de tabla de verdad
-                        document.querySelector('.exercise-content').textContent = exercises[1].content;
+                        // Cambiar a ejercicios de tabla de verdad
+                        changeExerciseType('truth-table');
                     }, 2000);
                 } else if (fileName.includes("circuito") || fileName.includes("compuerta")) {
                     addMessage("Veo que has subido un diagrama de circuito lógico. Analizando...", "ai");
@@ -731,8 +1001,8 @@ p ∧ q, p ∨ q, p → q`,
                         addMessage("El circuito corresponde a la expresión: (p ∧ q) ∨ (¬p ∧ r)", "ai");
                         addMessage("¿Quieres que te explique cómo funciona este circuito?", "ai");
                         
-                        // Cambiar a un ejercicio de circuito
-                        document.querySelector('.exercise-content').textContent = exercises[2].content;
+                        // Cambiar a ejercicios de circuitos
+                        changeExerciseType('circuit');
                     }, 2000);
                 } else {
                     addMessage("He detectado un ejercicio de lógica proposicional en tu imagen.", "ai");
@@ -740,8 +1010,8 @@ p ∧ q, p ∨ q, p → q`,
                         addMessage("Parece ser un problema que involucra valores de verdad y operaciones lógicas.", "ai");
                         addMessage("¿Te gustaría que te guíe en la solución?", "ai");
                         
-                        // Cambiar a un ejercicio estándar
-                        document.querySelector('.exercise-content').textContent = exercises[0].content;
+                        // Cambiar a ejercicios básicos
+                        changeExerciseType('basic');
                     }, 2000);
                 }
             }, 1500);
@@ -756,8 +1026,13 @@ p ∧ q, p ∨ q, p → q`,
                 addMessage(message, "user");
                 userInput.value = '';
                 
+                // Mostrar indicador de typing
+                showTypingIndicator();
+                
                 // Simular思考过程
                 setTimeout(() => {
+                    hideTypingIndicator();
+                    
                     // Buscar respuesta predefinida o usar default
                     const lowerMessage = message.toLowerCase();
                     let response = aiResponses.default;
@@ -770,7 +1045,14 @@ p ∧ q, p ∨ q, p → q`,
                     }
                     
                     addMessage(response, "ai");
-                }, 1000);
+                }, 1500);
+            }
+        }
+        
+        // Función para manejar la tecla Enter en el chat
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
             }
         }
 
@@ -786,31 +1068,22 @@ p ∧ q, p ∨ q, p → q`,
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-        // Permitir enviar mensaje con Enter
-        document.getElementById('userInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
         // Configurar arrastrar y soltar
         const uploadArea = document.getElementById('uploadArea');
+        
         uploadArea.addEventListener('dragover', function(e) {
             e.preventDefault();
-            uploadArea.style.borderColor = var(--secondary);
-            uploadArea.style.backgroundColor = '#f0f8ff';
+            uploadArea.classList.add('drag-over');
         });
         
         uploadArea.addEventListener('dragleave', function(e) {
             e.preventDefault();
-            uploadArea.style.borderColor = '#ccc';
-            uploadArea.style.backgroundColor = '';
+            uploadArea.classList.remove('drag-over');
         });
         
         uploadArea.addEventListener('drop', function(e) {
             e.preventDefault();
-            uploadArea.style.borderColor = '#ccc';
-            uploadArea.style.backgroundColor = '';
+            uploadArea.classList.remove('drag-over');
             
             const files = e.dataTransfer.files;
             if (files.length > 0) {
@@ -821,7 +1094,12 @@ p ∧ q, p ∨ q, p → q`,
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
             // Configurar el primer ejercicio
-            document.querySelector('.exercise-content').textContent = exercises[0].content;
+            loadExercise();
+            
+            // Añadir mensaje de bienvenida del asistente
+            setTimeout(() => {
+                addMessage("Puedes subir una imagen de un problema de lógica proposicional y te ayudaré a resolverlo paso a paso.", "ai");
+            }, 1000);
         });
     </script>
 </body>
