@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador IA de Lógica Proposicional</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --info: #3498db;
+            --ai-bubble: #e3f2fd;
+            --user-bubble: #f0f4f8;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto 1fr auto;
+            grid-template-areas: 
+                "header header"
+                "problem assistant"
+                "footer footer";
+        }
+        
+        header {
+            grid-area: header;
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .problem-section {
+            grid-area: problem;
+            padding: 20px;
+            background: var(--light);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .assistant-section {
+            grid-area: assistant;
+            padding: 20px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #eee;
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .exercise {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .exercise-content {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            border-color: var(--secondary);
+            outline: none;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .btn-secondary {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #27ae60;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+        
+        .btn-danger {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--secondary);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #7f8c8d;
+        }
+        
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+            max-height: 400px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+        
+        .message {
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 80%;
+            line-height: 1.4;
+            position: relative;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .ai-message {
+            align-self: flex-start;
+            background: var(--ai-bubble);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background: var(--user-bubble);
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .message-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .message-input input:focus {
+            border-color: var(--secondary);
+        }
+        
+        .send-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .send-btn:hover {
+            background: #2980b9;
+        }
+        
+        .solution-step {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .step-title {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .correct {
+            border-left: 4px solid var(--success);
+        }
+        
+        .incorrect {
+            border-left: 4px solid var(--accent);
+        }
+        
+        .feedback {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            background: #ffeaa7;
+            border-left: 4px solid var(--warning);
+        }
+        
+        .truth-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .truth-table th, .truth-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .truth-table th {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .truth-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .circuit-diagram {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        
+        footer {
+            grid-area: footer;
+            text-align: center;
+            padding: 20px;
+            background: var(--dark);
+            color: white;
+        }
+        
+        .analysis-progress {
+            height: 5px;
+            width: 100%;
+            background: #eee;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--secondary);
+            border-radius: 5px;
+            transition: width 0.5s ease-in-out;
+        }
+        
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-areas: 
+                    "header"
+                    "problem"
+                    "assistant"
+                    "footer";
+            }
+            
+            .assistant-section {
+                border-left: none;
+                border-top: 1px solid #eee;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-robot"></i> Analizador IA - Lógica Proposicional</h1>
+            <p class="subtitle">Sube imágenes de problemas y obtén soluciones paso a paso</p>
+        </header>
+        
+        <div class="problem-section">
+            <h2><i class="fas fa-pencil-alt"></i> Ejercicio Actual</h2>
+            
+            <div class="exercise">
+                <h3>Problema #1</h3>
+                <div class="exercise-content">
+                    Dadas las proposiciones:
+                    p: "5 es un número primo"
+                    q: "4 < 2"
+                    
+                    Determine el valor de verdad de:
+                    p ∧ q, p ∨ q, p → q
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <h3><i class="fas fa-edit"></i> Tu respuesta:</h3>
+                <textarea id="userSolution" placeholder="Escribe tu solución paso a paso aquí..."></textarea>
+                
+                <div class="buttons">
+                    <button class="btn-primary" onclick="checkSolution()">
+                        <i class="fas fa-check-circle"></i> Verificar solución
+                    </button>
+                    <button class="btn-secondary" onclick="showSolution()">
+                        <i class="fas fa-eye"></i> Mostrar solución
+                    </button>
+                    <button class="btn-warning" onclick="newExercise()">
+                        <i class="fas fa-plus-circle"></i> Nuevo ejercicio
+                    </button>
+                    <button class="btn-danger" onclick="clearAll()">
+                        <i class="fas fa-trash"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleImageUpload(this.files)">
+                <div class="upload-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <p>Haz clic o arrastra una imagen de un ejercicio para analizarlo</p>
+                <img id="imagePreview" class="image-preview" alt="Vista previa de la imagen">
+                <div class="analysis-progress" id="progressBar">
+                    <div class="progress-bar" id="progressFill"></div>
+                </div>
+            </div>
+            
+            <div class="feedback" id="feedbackSection">
+                <h3><i class="fas fa-comment-dots"></i> Retroalimentación</h3>
+                <p>Aquí verás el análisis de tu respuesta y correcciones si es necesario.</p>
+            </div>
+        </div>
+        
+        <div class="assistant-section">
+            <h2><i class="fas fa-robot"></i> Asistente IA</h2>
+            
+            <div class="chat-container" id="chatContainer">
+                <div class="message ai-message">
+                    ¡Hola! Soy tu asistente de lógica proposicional. ¿En qué puedo ayudarte hoy?
+                </div>
+                <div class="message ai-message">
+                    Puedes subir una imagen de un problema y te ayudaré a resolverlo paso a paso.
+                </div>
+            </div>
+            
+            <div class="message-input">
+                <input type="text" id="userInput" placeholder="Escribe tu pregunta aquí...">
+                <button class="send-btn" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Analizador IA de Lógica Proposicional - Basado en "Fundamentos de la Matemática" de Jorge Sáenz</p>
+        </footer>
+    </div>
+
+    <script>
+        // Ejercicios predefinidos
+        const exercises = [
+            {
+                id: 1,
+                content: `Dadas las proposiciones:
+p: "5 es un número primo"
+q: "4 < 2"
+                        
+Determine el valor de verdad de:
+p ∧ q, p ∨ q, p → q`,
+                solution: {
+                    steps: [
+                        "p: '5 es un número primo' → Verdadero (1)",
+                        "q: '4 < 2' → Falso (0)",
+                        "p ∧ q = 1 ∧ 0 = 0 (Falso)",
+                        "p ∨ q = 1 ∨ 0 = 1 (Verdadero)",
+                        "p → q = 1 → 0 = 0 (Falso)"
+                    ]
+                }
+            },
+            {
+                id: 2,
+                content: `Construya la tabla de verdad para la proposición:
+(p ∨ q) ∧ ¬p`,
+                solution: {
+                    steps: [
+                        "Primero identificamos las variables: p, q",
+                        "Construimos las columnas para p, q, p ∨ q, ¬p, y (p ∨ q) ∧ ¬p",
+                        "Completamos todas las combinaciones posibles de valores de verdad",
+                        "Evaluamos p ∨ q para cada combinación",
+                        "Evaluamos ¬p para cada combinación",
+                        "Finalmente evaluamos (p ∨ q) ∧ ¬p"
+                    ]
+                }
+            },
+            {
+                id: 3,
+                content: `Diseñe el circuito lógico para la expresión:
+(p ∧ q) ∨ (¬p ∧ r)`,
+                solution: {
+                    steps: [
+                        "Identificamos las compuertas necesarias: AND, OR y NOT",
+                        "Diseñamos la parte (p ∧ q) con una compuerta AND",
+                        "Diseñamos la parte (¬p ∧ r) con un NOT seguido de una AND",
+                        "Combinamos ambas partes con una compuerta OR",
+                        "Dibujamos el diagrama completo del circuito"
+                    ]
+                }
+            }
+        ];
+
+        // Respuestas predefinidas del asistente IA
+        const aiResponses = {
+            "hola": "¡Hola! ¿En qué puedo ayudarte con lógica proposicional?",
+            "ayuda": "Puedo ayudarte con: valores de verdad, tablas de verdad, circuitos lógicos y equivalencias lógicas. ¿Qué necesitas?",
+            "verdad": "El valor de verdad de una proposición es su cualidad de ser verdadera (1) o falsa (0).",
+            "conjuncion": "La conjunción (p ∧ q) es verdadera solo cuando ambas proposiciones son verdaderas.",
+            "disyuncion": "La disyunción (p ∨ q) es falsa solo cuando ambas proposiciones son falsas.",
+            "condicional": "El condicional (p → q) es falso solo cuando p es verdadera y q es falsa.",
+            "tabla": "Una tabla de verdad muestra todos los posibles valores de verdad de una proposición compuesta.",
+            "circuito": "Los circuitos lógicos representan proposiciones usando compuertas AND, OR y NOT.",
+            "default": "No estoy seguro de entender. ¿Podrías reformular tu pregunta?"
+        };
+
+        // Función para verificar la solución
+        function checkSolution() {
+            const userSolution = document.getElementById('userSolution').value;
+            const feedbackSection = document.getElementById('feedbackSection');
+            
+            if (!userSolution.trim()) {
+                feedbackSection.innerHTML = `
+                    <h3><i class="fas fa-exclamation-triangle"></i> Retroalimentación</h3>
+                    <p>Por favor, escribe tu solución antes de verificar.</p>
+                `;
+                return;
+            }
+            
+            // Análisis simple de la respuesta (simulación de IA)
+            let feedbackHTML = `
+                <h3><i class="fas fa-comment-dots"></i> Análisis de tu respuesta</h3>
+                <p><i class="fas fa-check-circle" style="color: var(--success);"></i> Correcto: Has identificado bien los valores de verdad de las proposiciones simples.</p>
+            `;
+            
+            if (!userSolution.includes("0") || !userSolution.includes("Falso")) {
+                feedbackHTML += `
+                    <p><i class="fas fa-exclamation-circle" style="color: var(--accent);"></i> Revisar: Parece que no has identificado correctamente que p ∧ q es falso.</p>
+                `;
+            }
+            
+            if (!userSolution.includes("1") || !userSolution.includes("Verdadero")) {
+                feedbackHTML += `
+                    <p><i class="fas fa-exclamation-circle" style="color: var(--accent);"></i> Revisar: Parece que no has identificado correctamente que p ∨ q es verdadero.</p>
+                `;
+            }
+            
+            feedbackHTML += `
+                <p><i class="fas fa-lightbulb" style="color: var(--warning);"></i> Sugerencia: Recuerda que el condicional p → q es falso solo cuando p es verdadero y q es falso.</p>
+            `;
+            
+            feedbackSection.innerHTML = feedbackHTML;
+            
+            // Añadir mensaje del asistente
+            addMessage("He revisado tu solución. Tienes algunos errores comunes. ¿Necesitas que te explique algún concepto en particular?", "ai");
+        }
+
+        // Función para mostrar la solución completa
+        function showSolution() {
+            addMessage("Claro, aquí está la solución paso a paso para el ejercicio actual:", "ai");
+            
+            // Simular延时 para mostrar los pasos uno por uno
+            setTimeout(() => {
+                addMessage("Paso 1: Identificar valores de verdad de las proposiciones simples", "ai");
+            }, 800);
+            
+            setTimeout(() => {
+                addMessage("p: '5 es un número primo' → Verdadero (1)", "ai");
+            }, 1600);
+            
+            setTimeout(() => {
+                addMessage("q: '4 < 2' → Falso (0)", "ai");
+            }, 2400);
+            
+            setTimeout(() => {
+                addMessage("Paso 2: Evaluar p ∧ q (conjunción)", "ai");
+            }, 3200);
+            
+            setTimeout(() => {
+                addMessage("p ∧ q = 1 ∧ 0 = 0 (Falso)", "ai");
+            }, 4000);
+            
+            setTimeout(() => {
+                addMessage("Paso 3: Evaluar p ∨ q (disyunción)", "ai");
+            }, 4800);
+            
+            setTimeout(() => {
+                addMessage("p ∨ q = 1 ∨ 0 = 1 (Verdadero)", "ai");
+            }, 5600);
+            
+            setTimeout(() => {
+                addMessage("Paso 4: Evaluar p → q (condicional)", "ai");
+            }, 6400);
+            
+            setTimeout(() => {
+                addMessage("p → q = 1 → 0 = 0 (Falso)", "ai");
+                addMessage("¿Te quedó claro? ¿Necesitas que explique algún paso en detalle?", "ai");
+            }, 7200);
+        }
+
+        // Función para generar un nuevo ejercicio
+        function newExercise() {
+            const randomIndex = Math.floor(Math.random() * exercises.length);
+            const exercise = exercises[randomIndex];
+            
+            document.querySelector('.exercise-content').textContent = exercise.content;
+            document.getElementById('feedbackSection').innerHTML = `
+                <h3><i class="fas fa-comment-dots"></i> Retroalimentación</h3>
+                <p>Aquí verás el análisis de tu respuesta y correcciones si es necesario.</p>
+            `;
+            
+            // Limpiar el área de texto
+            document.getElementById('userSolution').value = '';
+            
+            addMessage(`He generado un nuevo ejercicio para ti. ¿Necesitas ayuda para resolverlo?`, "ai");
+        }
+
+        // Función para limpiar todo
+        function clearAll() {
+            document.getElementById('userSolution').value = '';
+            document.getElementById('feedbackSection').innerHTML = `
+                <h3><i class="fas fa-comment-dots"></i> Retroalimentación</h3>
+                <p>Aquí verás el análisis de tu respuesta y correcciones si es necesario.</p>
+            `;
+            
+            addMessage("He limpiado tu área de trabajo. ¿En qué puedo ayudarte ahora?", "ai");
+        }
+
+        // Función para manejar la subida de imágenes
+        function handleImageUpload(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                const reader = new FileReader();
+                
+                // Mostrar vista previa de la imagen
+                reader.onload = function(e) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    
+                    // Mostrar barra de progreso
+                    const progressBar = document.getElementById('progressBar');
+                    const progressFill = document.getElementById('progressFill');
+                    progressBar.style.display = 'block';
+                    
+                    // Simular análisis progresivo
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 5;
+                        progressFill.style.width = `${progress}%`;
+                        
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            simulateImageAnalysis(file);
+                        }
+                    }, 100);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Función para simular el análisis de imagen
+        function simulateImageAnalysis(file) {
+            addMessage("He recibido tu imagen. Estoy analizando el problema...", "ai");
+            
+            // Ocultar barra de progreso
+            setTimeout(() => {
+                document.getElementById('progressBar').style.display = 'none';
+                
+                // Simular diferentes tipos de análisis basados en el nombre del archivo
+                const fileName = file.name.toLowerCase();
+                
+                if (fileName.includes("tabla") || fileName.includes("verdad")) {
+                    addMessage("He detectado una tabla de verdad en tu imagen. Déjame analizarla...", "ai");
+                    setTimeout(() => {
+                        addMessage("La tabla de verdad corresponde a la expresión: (p ∨ q) ∧ ¬p", "ai");
+                        addMessage("¿Te gustaría que te muestre cómo construir esta tabla paso a paso?", "ai");
+                        
+                        // Cambiar a un ejercicio de tabla de verdad
+                        document.querySelector('.exercise-content').textContent = exercises[1].content;
+                    }, 2000);
+                } else if (fileName.includes("circuito") || fileName.includes("compuerta")) {
+                    addMessage("Veo que has subido un diagrama de circuito lógico. Analizando...", "ai");
+                    setTimeout(() => {
+                        addMessage("El circuito corresponde a la expresión: (p ∧ q) ∨ (¬p ∧ r)", "ai");
+                        addMessage("¿Quieres que te explique cómo funciona este circuito?", "ai");
+                        
+                        // Cambiar a un ejercicio de circuito
+                        document.querySelector('.exercise-content').textContent = exercises[2].content;
+                    }, 2000);
+                } else {
+                    addMessage("He detectado un ejercicio de lógica proposicional en tu imagen.", "ai");
+                    setTimeout(() => {
+                        addMessage("Parece ser un problema que involucra valores de verdad y operaciones lógicas.", "ai");
+                        addMessage("¿Te gustaría que te guíe en la solución?", "ai");
+                        
+                        // Cambiar a un ejercicio estándar
+                        document.querySelector('.exercise-content').textContent = exercises[0].content;
+                    }, 2000);
+                }
+            }, 1500);
+        }
+
+        // Función para enviar mensaje al asistente
+        function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            
+            if (message) {
+                addMessage(message, "user");
+                userInput.value = '';
+                
+                // Simular思考过程
+                setTimeout(() => {
+                    // Buscar respuesta predefinida o usar default
+                    const lowerMessage = message.toLowerCase();
+                    let response = aiResponses.default;
+                    
+                    for (const [key, value] of Object.entries(aiResponses)) {
+                        if (lowerMessage.includes(key)) {
+                            response = value;
+                            break;
+                        }
+                    }
+                    
+                    addMessage(response, "ai");
+                }, 1000);
+            }
+        }
+
+        // Función para añadir mensaje al chat
+        function addMessage(text, sender) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            messageElement.classList.add(sender === 'ai' ? 'ai-message' : 'user-message');
+            messageElement.textContent = text;
+            
+            chatContainer.appendChild(messageElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Permitir enviar mensaje con Enter
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Configurar arrastrar y soltar
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = var(--secondary);
+            uploadArea.style.backgroundColor = '#f0f8ff';
+        });
+        
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            uploadArea.style.backgroundColor = '';
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            uploadArea.style.backgroundColor = '';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleImageUpload(files);
+            }
+        });
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar el primer ejercicio
+            document.querySelector('.exercise-content').textContent = exercises[0].content;
+        });
+    </script>
+</body>
+</html>
