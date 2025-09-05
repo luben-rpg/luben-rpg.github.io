@@ -17,6 +17,7 @@
             --info: #3498db;
             --ai-bubble: #e3f2fd;
             --user-bubble: #f0f4f8;
+            --learning: #9b59b6;
         }
         
         * {
@@ -60,6 +61,20 @@
             align-items: center;
             justify-content: center;
             flex-direction: column;
+            position: relative;
+        }
+        
+        .learning-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--learning);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
         h1 {
@@ -88,6 +103,7 @@
             display: flex;
             flex-direction: column;
             border-left: 1px solid #eee;
+            position: relative;
         }
         
         h2 {
@@ -188,6 +204,15 @@
         
         .btn-danger:hover {
             background: #c0392b;
+        }
+        
+        .btn-learning {
+            background: var(--learning);
+            color: white;
+        }
+        
+        .btn-learning:hover {
+            background: #8e44ad;
         }
         
         .upload-area {
@@ -428,6 +453,86 @@
             border-left: 4px solid var(--info);
         }
         
+        .feedback-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: flex-end;
+        }
+        
+        .feedback-btn {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .feedback-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .feedback-btn.helpful {
+            color: var(--success);
+        }
+        
+        .feedback-btn.not-helpful {
+            color: var(--accent);
+        }
+        
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .suggestion-chip {
+            padding: 8px 15px;
+            background: #e3f2fd;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .suggestion-chip:hover {
+            background: #d0e5fc;
+        }
+        
+        .user-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .progress-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .progress-tracker {
+            flex: 1;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-value {
+            height: 100%;
+            background: var(--success);
+            border-radius: 4px;
+            transition: width 0.5s ease-in-out;
+        }
+        
         @media (max-width: 900px) {
             .container {
                 grid-template-columns: 1fr;
@@ -478,13 +583,35 @@
             0%, 60%, 100% { transform: translateY(0); }
             30% { transform: translateY(-5px); }
         }
+        
+        .learning-notice {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: var(--learning);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s;
+        }
+        
+        .learning-notice.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
+            <div class="learning-badge">
+                <i class="fas fa-brain"></i> IA con Aprendizaje
+            </div>
             <h1><i class="fas fa-robot"></i> Analizador IA Avanzado - Lógica Proposicional</h1>
-            <p class="subtitle">IA mejorada que analiza tus respuestas escritas y proporciona retroalimentación detallada</p>
+            <p class="subtitle">IA mejorada que aprende de tus interacciones y mejora sus explicaciones</p>
         </header>
         
         <div class="problem-section">
@@ -526,10 +653,21 @@
                     <button class="btn-warning" onclick="newExercise()">
                         <i class="fas fa-plus-circle"></i> Nuevo ejercicio
                     </button>
+                    <button class="btn-learning" onclick="adaptiveExplanation()">
+                        <i class="fas fa-graduation-cap"></i> Explicación Adaptativa
+                    </button>
                     <button class="btn-danger" onclick="clearAll()">
                         <i class="fas fa-trash"></i> Limpiar
                     </button>
                 </div>
+            </div>
+            
+            <div class="user-progress">
+                <span class="progress-label">Tu progreso:</span>
+                <div class="progress-tracker">
+                    <div class="progress-value" id="progressValue" style="width: 0%"></div>
+                </div>
+                <span id="progressPercent">0%</span>
             </div>
             
             <div class="upload-area" id="uploadArea">
@@ -551,14 +689,23 @@
         </div>
         
         <div class="assistant-section">
+            <div class="learning-notice" id="learningNotice">
+                <i class="fas fa-sync-alt"></i> Aprendiendo de tu interacción...
+            </div>
+            
             <h2><i class="fas fa-robot"></i> Asistente IA Avanzado</h2>
             
             <div class="chat-container" id="chatContainer">
                 <div class="message ai-message">
-                    ¡Hola! Soy tu asistente avanzado de lógica proposicional. Analizaré tus respuestas escritas y te proporcionaré retroalimentación detallada.
+                    ¡Hola! Soy tu asistente avanzado de lógica proposicional. Analizaré tus respuestas escritas y aprenderé de nuestras interacciones para mejorar mis explicaciones.
                 </div>
                 <div class="message ai-message">
                     Puedes escribir tus soluciones, subir imágenes de problemas o hacerme preguntas directas.
+                    <div class="suggestion-chips">
+                        <div class="suggestion-chip" onclick="sendSuggestion('¿Cómo funciona la conjunción?')">¿Cómo funciona la conjunción?</div>
+                        <div class="suggestion-chip" onclick="sendSuggestion('Explícame las tablas de verdad')">Explícame las tablas de verdad</div>
+                        <div class="suggestion-chip" onclick="sendSuggestion('Necesito un ejemplo de circuito')">Necesito un ejemplo de circuito</div>
+                    </div>
                 </div>
             </div>
             
@@ -680,8 +827,199 @@ p ∨ q, p ∧ q, ¬p`,
             ]
         };
 
+        // Sistema de aprendizaje de la IA
+        const aiLearningSystem = {
+            userKnowledge: {
+                basic: { score: 0, attempts: 0, correct: 0 },
+                truthTable: { score: 0, attempts: 0, correct: 0 },
+                circuit: { score: 0, attempts: 0, correct: 0 }
+            },
+            explanationLevel: 1, // 1: Básico, 2: Intermedio, 3: Avanzado
+            userPreferences: {
+                detailedExplanations: true,
+                examples: true,
+                visualAids: true
+            },
+            conversationHistory: [],
+            feedbackHistory: [],
+            
+            // Aprender de la retroalimentación del usuario
+            learnFromFeedback: function(messageId, wasHelpful, feedbackText = "") {
+                this.feedbackHistory.push({
+                    messageId,
+                    wasHelpful,
+                    feedbackText,
+                    timestamp: new Date()
+                });
+                
+                // Ajustar el nivel de explicación según la retroalimentación
+                if (wasHelpful) {
+                    this.explanationLevel = Math.min(3, this.explanationLevel + 0.1);
+                    showLearningNotice("¡Gracias por tu feedback! Estoy mejorando mis explicaciones.");
+                } else {
+                    this.explanationLevel = Math.max(1, this.explanationLevel - 0.2);
+                    showLearningNotice("Ajustando mis explicaciones basado en tu feedback...");
+                    
+                    // Si hay texto de retroalimentación, aprender de él
+                    if (feedbackText) {
+                        this.learnFromTextFeedback(feedbackText);
+                    }
+                }
+                
+                // Guardar en localStorage
+                this.saveToLocalStorage();
+            },
+            
+            // Aprender del texto de retroalimentación
+            learnFromTextFeedback: function(feedbackText) {
+                const lowerFeedback = feedbackText.toLowerCase();
+                
+                // Detectar solicitudes de más detalle
+                if (lowerFeedback.includes("más detalle") || lowerFeedback.includes("explica mejor") || 
+                    lowerFeedback.includes("no entiendo")) {
+                    this.userPreferences.detailedExplanations = true;
+                }
+                
+                // Detectar solicitudes de ejemplos
+                if (lowerFeedback.includes("ejemplo") || lowerFeedback.includes("ejempl")) {
+                    this.userPreferences.examples = true;
+                }
+                
+                // Detectar solicitudes de ayudas visuales
+                if (lowerFeedback.includes("visual") || lowerFeedback.includes("gráfico") || 
+                    lowerFeedback.includes("diagrama")) {
+                    this.userPreferences.visualAids = true;
+                }
+            },
+            
+            // Aprender del historial de conversación
+            learnFromConversation: function() {
+                // Analizar el historial de conversación para mejorar
+                const lastFiveMessages = this.conversationHistory.slice(-5);
+                
+                // Contar preguntas del usuario
+                const userQuestions = lastFiveMessages.filter(msg => msg.sender === 'user').length;
+                
+                // Si el usuario hace muchas preguntas, puede necesitar explicaciones más detalladas
+                if (userQuestions >= 3) {
+                    this.userPreferences.detailedExplanations = true;
+                    this.explanationLevel = Math.min(3, this.explanationLevel + 0.2);
+                }
+                
+                // Guardar en localStorage
+                this.saveToLocalStorage();
+            },
+            
+            // Actualizar el conocimiento del usuario
+            updateUserKnowledge: function(topic, isCorrect) {
+                if (!this.userKnowledge[topic]) {
+                    this.userKnowledge[topic] = { score: 0, attempts: 0, correct: 0 };
+                }
+                
+                this.userKnowledge[topic].attempts++;
+                if (isCorrect) {
+                    this.userKnowledge[topic].correct++;
+                }
+                
+                this.userKnowledge[topic].score = this.userKnowledge[topic].correct / this.userKnowledge[topic].attempts;
+                
+                // Actualizar barra de progreso
+                updateProgressBar();
+                
+                // Guardar en localStorage
+                this.saveToLocalStorage();
+            },
+            
+            // Obtener explicación adaptada al usuario
+            getAdaptedExplanation: function(topic, baseExplanation) {
+                let explanation = baseExplanation;
+                
+                // Añadir más detalle si es necesario
+                if (this.userPreferences.detailedExplanations) {
+                    explanation += this.getAdditionalDetails(topic);
+                }
+                
+                // Añadir ejemplos si es necesario
+                if (this.userPreferences.examples) {
+                    explanation += this.getExample(topic);
+                }
+                
+                // Ajustar según el nivel de explicación
+                if (this.explanationLevel < 2) {
+                    // Explicación más simple
+                    explanation = explanation.replace(/términos técnicos/g, "conceptos")
+                                             .replace(/En lógica proposicional/g, "En este tema");
+                } else if (this.explanationLevel > 2) {
+                    // Explicación más avanzada
+                    explanation += this.getAdvancedInsight(topic);
+                }
+                
+                return explanation;
+            },
+            
+            // Obtener detalles adicionales según el tema
+            getAdditionalDetails: function(topic) {
+                const details = {
+                    basic: "\n\nRecuerda que en lógica proposicional trabajamos con valores de verdad binarios: verdadero (1) y falso (0).",
+                    truthTable: "\n\nCada variable proposicional tiene dos valores posibles, por lo que para n variables necesitarás 2^n filas en tu tabla de verdad.",
+                    circuit: "\n\nLas compuertas lógicas se pueden combinar de muchas formas para crear circuitos más complejos que representen expresiones lógicas."
+                };
+                
+                return details[topic] || "";
+            },
+            
+            // Obtener ejemplos según el tema
+            getExample: function(topic) {
+                const examples = {
+                    basic: "\n\nPor ejemplo, si p es verdadero y q es falso, entonces p ∧ q es falso, pero p ∨ q es verdadero.",
+                    truthTable: "\n\nPor ejemplo, para una expresión con 2 variables, la tabla de verdad tendrá 4 filas que representan todas las combinaciones posibles.",
+                    circuit: "\n\nPor ejemplo, la expresión p ∧ q se representaría con una compuerta AND que toma las entradas p y q."
+                };
+                
+                return examples[topic] || "";
+            },
+            
+            // Obtener información avanzada según el tema
+            getAdvancedInsight: function(topic) {
+                const insights = {
+                    basic: "\n\nDesde una perspectiva más avanzada, puedes notar que el operador condicional (→) no es conmutativo, a diferencia de la conjunción y disyunción.",
+                    truthTable: "\n\nUna perspectiva avanzada: las tablas de verdad son la base para la implementación de circuitos digitales y álgebra booleana.",
+                    circuit: "\n\nPerspectiva avanzada: estos circuitos lógicos son la base de los procesadores modernos y se implementan físicamente con transistores."
+                };
+                
+                return insights[topic] || "";
+            },
+            
+            // Guardar en localStorage
+            saveToLocalStorage: function() {
+                const data = {
+                    userKnowledge: this.userKnowledge,
+                    explanationLevel: this.explanationLevel,
+                    userPreferences: this.userPreferences,
+                    feedbackHistory: this.feedbackHistory
+                };
+                
+                localStorage.setItem('aiLearningData', JSON.stringify(data));
+            },
+            
+            // Cargar desde localStorage
+            loadFromLocalStorage: function() {
+                const data = JSON.parse(localStorage.getItem('aiLearningData'));
+                if (data) {
+                    this.userKnowledge = data.userKnowledge || this.userKnowledge;
+                    this.explanationLevel = data.explanationLevel || this.explanationLevel;
+                    this.userPreferences = data.userPreferences || this.userPreferences;
+                    this.feedbackHistory = data.feedbackHistory || this.feedbackHistory;
+                    
+                    // Actualizar barra de progreso
+                    updateProgressBar();
+                }
+            }
+        };
+
         let currentExerciseType = 'basic';
         let currentExerciseIndex = 0;
+        let messageCounter = 0;
 
         // Respuestas predefinidas del asistente IA mejorado
         const aiResponses = {
@@ -695,6 +1033,36 @@ p ∨ q, p ∧ q, ¬p`,
             "circuito": "Los circuitos lógicos representan proposiciones usando compuertas AND, OR y NOT. Cada compuerta corresponde a un operador lógico específico.",
             "default": "No estoy seguro de entender completamente. ¿Podrías reformular tu pregunta o ser más específico? Estoy aquí para ayudarte con conceptos de lógica proposicional."
         };
+
+        // Función para mostrar notificación de aprendizaje
+        function showLearningNotice(message) {
+            const notice = document.getElementById('learningNotice');
+            notice.textContent = message;
+            notice.classList.add('show');
+            
+            setTimeout(() => {
+                notice.classList.remove('show');
+            }, 3000);
+        }
+
+        // Función para actualizar la barra de progreso
+        function updateProgressBar() {
+            const knowledge = aiLearningSystem.userKnowledge;
+            let totalScore = 0;
+            let totalTopics = 0;
+            
+            for (const topic in knowledge) {
+                if (knowledge[topic].attempts > 0) {
+                    totalScore += knowledge[topic].score;
+                    totalTopics++;
+                }
+            }
+            
+            const overallProgress = totalTopics > 0 ? (totalScore / totalTopics) * 100 : 0;
+            
+            document.getElementById('progressValue').style.width = `${overallProgress}%`;
+            document.getElementById('progressPercent').textContent = `${Math.round(overallProgress)}%`;
+        }
 
         // Función para cambiar el tipo de ejercicio
         function changeExerciseType(type) {
@@ -765,16 +1133,23 @@ p ∨ q, p ∧ q, ¬p`,
                 // Análisis basado en el tipo de ejercicio
                 if (currentExerciseType === 'basic') {
                     feedbackHTML += analyzeBasicSolution(userSolution, exercise);
+                    // Actualizar conocimiento del usuario
+                    aiLearningSystem.updateUserKnowledge('basic', true);
                 } else if (currentExerciseType === 'truth-table') {
                     feedbackHTML += analyzeTruthTableSolution(userSolution, exercise);
+                    aiLearningSystem.updateUserKnowledge('truthTable', true);
                 } else if (currentExerciseType === 'circuit') {
                     feedbackHTML += analyzeCircuitSolution(userSolution, exercise);
+                    aiLearningSystem.updateUserKnowledge('circuit', true);
                 }
                 
                 feedbackSection.innerHTML = feedbackHTML;
                 
                 // Añadir mensaje del asistente
                 addMessage("He analizado tu solución en detalle. ¿Hay algún concepto específico que te gustaría que explique más a fondo?", "ai");
+                
+                // Aprender de la conversación
+                aiLearningSystem.learnFromConversation();
             }, 2000);
         }
 
@@ -903,6 +1278,29 @@ p ∨ q, p ∧ q, ¬p`,
             loadExercise();
             
             addMessage(`He generado un nuevo ejercicio de ${getExerciseTypeName(currentExerciseType)}. ¿Necesitas ayuda para resolverlo?`, "ai");
+        }
+
+        // Función para proporcionar una explicación adaptativa
+        function adaptiveExplanation() {
+            const exercise = exercises[currentExerciseType][currentExerciseIndex];
+            let explanation = "";
+            
+            // Obtener explicación base según el tipo de ejercicio
+            if (currentExerciseType === 'basic') {
+                explanation = "Para resolver este ejercicio de lógica básica, debes seguir estos pasos:";
+            } else if (currentExerciseType === 'truth-table') {
+                explanation = "Para construir una tabla de verdad, sigue estos pasos:";
+            } else if (currentExerciseType === 'circuit') {
+                explanation = "Para diseñar un circuito lógico, considera estos pasos:";
+            }
+            
+            // Obtener explicación adaptada
+            explanation = aiLearningSystem.getAdaptedExplanation(currentExerciseType, explanation);
+            
+            // Añadir los pasos de la solución
+            explanation += "\n\n" + exercise.solution.steps.join('\n');
+            
+            addMessage(explanation, "ai");
         }
 
         // Función para limpiar todo
@@ -1044,9 +1442,21 @@ p ∨ q, p ∧ q, ¬p`,
                         }
                     }
                     
+                    // Adaptar la respuesta según el sistema de aprendizaje
+                    response = aiLearningSystem.getAdaptedExplanation(currentExerciseType, response);
+                    
                     addMessage(response, "ai");
+                    
+                    // Aprender de la conversación
+                    aiLearningSystem.learnFromConversation();
                 }, 1500);
             }
+        }
+        
+        // Función para enviar una sugerencia predefinida
+        function sendSuggestion(suggestion) {
+            document.getElementById('userInput').value = suggestion;
+            sendMessage();
         }
         
         // Función para manejar la tecla Enter en el chat
@@ -1056,16 +1466,59 @@ p ∨ q, p ∧ q, ¬p`,
             }
         }
 
-        // Función para añadir mensaje al chat
+        // Función para añadir mensaje al chat con sistema de retroalimentación
         function addMessage(text, sender) {
             const chatContainer = document.getElementById('chatContainer');
             const messageElement = document.createElement('div');
             messageElement.classList.add('message');
             messageElement.classList.add(sender === 'ai' ? 'ai-message' : 'user-message');
+            
+            // Añadir ID único al mensaje para retroalimentación
+            const messageId = `msg-${messageCounter++}`;
+            messageElement.id = messageId;
+            
             messageElement.textContent = text;
+            
+            // Añadir botones de retroalimentación para mensajes de IA
+            if (sender === 'ai') {
+                const feedbackButtons = document.createElement('div');
+                feedbackButtons.classList.add('feedback-buttons');
+                
+                const helpfulBtn = document.createElement('button');
+                helpfulBtn.classList.add('feedback-btn', 'helpful');
+                helpfulBtn.innerHTML = '<i class="fas fa-thumbs-up"></i> Útil';
+                helpfulBtn.onclick = function() {
+                    aiLearningSystem.learnFromFeedback(messageId, true);
+                    this.disabled = true;
+                    notHelpfulBtn.disabled = true;
+                };
+                
+                const notHelpfulBtn = document.createElement('button');
+                notHelpfulBtn.classList.add('feedback-btn', 'not-helpful');
+                notHelpfulBtn.innerHTML = '<i class="fas fa-thumbs-down"></i> No útil';
+                notHelpfulBtn.onclick = function() {
+                    const feedbackText = prompt("¿Cómo podría mejorar mi explicación?");
+                    aiLearningSystem.learnFromFeedback(messageId, false, feedbackText);
+                    this.disabled = true;
+                    helpfulBtn.disabled = true;
+                };
+                
+                feedbackButtons.appendChild(helpfulBtn);
+                feedbackButtons.appendChild(notHelpfulBtn);
+                
+                messageElement.appendChild(feedbackButtons);
+            }
             
             chatContainer.appendChild(messageElement);
             chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // Guardar en historial de conversación
+            aiLearningSystem.conversationHistory.push({
+                id: messageId,
+                text: text,
+                sender: sender,
+                timestamp: new Date()
+            });
         }
 
         // Configurar arrastrar y soltar
@@ -1093,6 +1546,9 @@ p ∨ q, p ∧ q, ¬p`,
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
+            // Cargar datos de aprendizaje previos
+            aiLearningSystem.loadFromLocalStorage();
+            
             // Configurar el primer ejercicio
             loadExercise();
             
