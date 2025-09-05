@@ -18,6 +18,7 @@
             --ai-bubble: #e3f2fd;
             --user-bubble: #f0f4f8;
             --learning: #9b59b6;
+            --reading: #16a085;
         }
         
         * {
@@ -114,7 +115,7 @@
         }
         
         .exercise {
-            background: rgb(255, 227, 227);
+            background: white;
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
@@ -213,6 +214,15 @@
         
         .btn-learning:hover {
             background: #8e44ad;
+        }
+        
+        .btn-reading {
+            background: var(--reading);
+            color: white;
+        }
+        
+        .btn-reading:hover {
+            background: #1abc9c;
         }
         
         .upload-area {
@@ -602,6 +612,196 @@
             opacity: 1;
             transform: translateY(0);
         }
+        
+        /* Estilos para el módulo de lectura */
+        .reading-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .reading-content {
+            background: white;
+            width: 90%;
+            max-width: 1000px;
+            height: 80%;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .reading-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .close-reading {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .reading-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .book-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid #eee;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .book-content h3 {
+            color: var(--primary);
+            margin: 20px 0 10px;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 5px;
+        }
+        
+        .book-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .book-content .important {
+            background: #fff9e6;
+            padding: 10px 15px;
+            border-left: 4px solid var(--warning);
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .book-content .definition {
+            background: #e8f4fd;
+            padding: 10px 15px;
+            border-left: 4px solid var(--info);
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .book-content .example {
+            background: #f0f9f0;
+            padding: 10px 15px;
+            border-left: 4px solid var(--success);
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .ia-assistance {
+            width: 300px;
+            padding: 15px;
+            background: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .ia-explanation {
+            background: var(--ai-bubble);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        
+        .ia-suggestions {
+            margin-top: 15px;
+        }
+        
+        .suggestion-item {
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid var(--reading);
+        }
+        
+        .suggestion-item:hover {
+            background: #e3f2fd;
+            transform: translateX(5px);
+        }
+        
+        .chapter-nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background: #f5f5f5;
+            border-top: 1px solid #eee;
+        }
+        
+        .nav-btn {
+            padding: 8px 15px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .bookmark-btn {
+            background: var(--reading);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .reading-controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .control-btn {
+            padding: 8px 12px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .control-btn.active {
+            background: var(--secondary);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -612,6 +812,9 @@
             </div>
             <h1><i class="fas fa-robot"></i> Analizador IA Avanzado - Lógica Proposicional</h1>
             <p class="subtitle">IA mejorada que aprende de tus interacciones y mejora sus explicaciones</p>
+            <button class="btn-reading" onclick="openReadingModal()">
+                <i class="fas fa-book"></i> Leer Libro con Asistencia IA
+            </button>
         </header>
         
         <div class="problem-section">
@@ -722,6 +925,58 @@
         </footer>
     </div>
 
+    <!-- Modal de lectura del libro -->
+    <div class="reading-modal" id="readingModal">
+        <div class="reading-content">
+            <div class="reading-header">
+                <h2><i class="fas fa-book"></i> Fundamentos de la Matemática - Jorge Sáenz</h2>
+                <button class="close-reading" onclick="closeReadingModal()">&times;</button>
+            </div>
+            <div class="reading-body">
+                <div class="book-content" id="bookContent">
+                    <!-- El contenido del libro se cargará aquí -->
+                </div>
+                <div class="ia-assistance">
+                    <h3><i class="fas fa-robot"></i> Asistente de Lectura</h3>
+                    <div class="ia-explanation" id="iaExplanation">
+                        Selecciona un capítulo o tema para obtener explicaciones y sugerencias de estudio.
+                    </div>
+                    
+                    <div class="reading-controls">
+                        <button class="control-btn" onclick="changeExplanationLevel('basic')" id="btnBasic">Básico</button>
+                        <button class="control-btn active" onclick="changeExplanationLevel('normal')" id="btnNormal">Normal</button>
+                        <button class="control-btn" onclick="changeExplanationLevel('advanced')" id="btnAdvanced">Avanzado</button>
+                    </div>
+                    
+                    <div class="ia-suggestions">
+                        <h4>Sugerencias de estudio:</h4>
+                        <div class="suggestion-item" onclick="askQuestion('explicame este concepto')">
+                            <i class="fas fa-question-circle"></i> Explicar este concepto
+                        </div>
+                        <div class="suggestion-item" onclick="askQuestion('ejemplo de este tema')">
+                            <i class="fas fa-lightbulb"></i> Mostrar un ejemplo
+                        </div>
+                        <div class="suggestion-item" onclick="askQuestion('ejercicio relacionado')">
+                            <i class="fas fa-pencil-alt"></i> Proponer un ejercicio
+                        </div>
+                        <div class="suggestion-item" onclick="askQuestion('aplicación práctica')">
+                            <i class="fas fa-rocket"></i> Aplicación práctica
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="chapter-nav">
+                <button class="nav-btn" id="prevChapter" onclick="changeChapter(-1)" disabled>
+                    <i class="fas fa-arrow-left"></i> Anterior
+                </button>
+                <span id="currentChapter">Capítulo 1: Lógica Proposicional</span>
+                <button class="nav-btn" id="nextChapter" onclick="changeChapter(1)">
+                    Siguiente <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Ejercicios predefinidos por tipo
         const exercises = {
@@ -825,6 +1080,161 @@ p ∨ q, p ∧ q, ¬p`,
                     }
                 }
             ]
+        };
+
+        // Contenido del libro "Fundamentos de la Matemática" de Jorge Sáenz
+        const bookContent = {
+            chapter1: {
+                title: "Capítulo 1: Lógica Proposicional",
+                content: `
+                    <h3>1.1 Proposiciones</h3>
+                    <p>Una <strong>proposición</strong> es una expresión lingüística que puede ser calificada como verdadera o falsa, pero no ambas cosas a la vez.</p>
+                    
+                    <div class="definition">
+                        <strong>Definición:</strong> Una proposición es un enunciado que tiene un valor de verdad bien definido, es decir, que es verdadero (V) o falso (F), pero no ambos.
+                    </div>
+                    
+                    <div class="example">
+                        <strong>Ejemplos de proposiciones:</strong>
+                        <ul>
+                            <li>"5 es un número primo" → Verdadera</li>
+                            <li>"4 es mayor que 10" → Falsa</li>
+                            <li>"Quito es la capital de Ecuador" → Verdadera</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="important">
+                        <strong>Importante:</strong> No son proposiciones:
+                        <ul>
+                            <li>Preguntas: "¿Qué hora es?"</li>
+                            <li>Órdenes: "Abre la ventana"</li>
+                            <li>Exclamaciones: "¡Qué sorpresa!"</li>
+                            <li>Enunciados vagos: "Él es alto" (depende de contexto)</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>1.2 Conectivos Lógicos</h3>
+                    <p>Los conectivos lógicos son operadores que permiten formar proposiciones compuestas a partir de proposiciones simples.</p>
+                    
+                    <p><strong>Conjunción (∧):</strong> Representa "y". La proposición p ∧ q es verdadera solo cuando ambas proposiciones son verdaderas.</p>
+                    
+                    <p><strong>Disyunción (∨):</strong> Representa "o". La proposición p ∨ q es falsa solo cuando ambas proposiciones son falsas.</p>
+                    
+                    <p><strong>Condicional (→):</strong> Representa "si... entonces...". La proposición p → q es falsa solo cuando p es verdadera y q es falsa.</p>
+                    
+                    <p><strong>Bicondicional (↔):</strong> Representa "si y solo si". La proposición p ↔ q es verdadera cuando ambas proposiciones tienen el mismo valor de verdad.</p>
+                    
+                    <p><strong>Negación (¬):</strong> Invierte el valor de verdad de la proposición.</p>
+                    
+                    <h3>1.3 Tablas de Verdad</h3>
+                    <p>Una tabla de verdad es una representación sistemática de todos los posibles valores de verdad de una proposición compuesta.</p>
+                    
+                    <div class="example">
+                        <strong>Ejemplo: Tabla de verdad para p ∧ q</strong>
+                        <table class="truth-table">
+                            <tr>
+                                <th>p</th>
+                                <th>q</th>
+                                <th>p ∧ q</th>
+                            </tr>
+                            <tr>
+                                <td>V</td>
+                                <td>V</td>
+                                <td>V</td>
+                            </tr>
+                            <tr>
+                                <td>V</td>
+                                <td>F</td>
+                                <td>F</td>
+                            </tr>
+                            <tr>
+                                <td>F</td>
+                                <td>V</td>
+                                <td>F</td>
+                            </tr>
+                            <tr>
+                                <td>F</td>
+                                <td>F</td>
+                                <td>F</td>
+                            </tr>
+                        </table>
+                    </div>
+                `
+            },
+            chapter2: {
+                title: "Capítulo 2: Circuitos Lógicos",
+                content: `
+                    <h3>2.1 Compuertas Lógicas</h3>
+                    <p>Las compuertas lógicas son dispositivos electrónicos que implementan las operaciones lógicas básicas.</p>
+                    
+                    <div class="definition">
+                        <strong>Compuerta AND:</strong> Implementa la conjunción lógica. Su salida es 1 solo cuando todas sus entradas son 1.
+                    </div>
+                    
+                    <div class="definition">
+                        <strong>Compuerta OR:</strong> Implementa la disyunción lógica. Su salida es 1 cuando al menos una de sus entradas es 1.
+                    </div>
+                    
+                    <div class="definition">
+                        <strong>Compuerta NOT:</strong> Implementa la negación lógica. Su salida es el valor contrario a su entrada.
+                    </div>
+                    
+                    <h3>2.2 Diseño de Circuitos</h3>
+                    <p>Los circuitos lógicos se diseñan combinando compuertas lógicas para implementar funciones booleanas.</p>
+                    
+                    <div class="example">
+                        <strong>Ejemplo: Circuito para p ∧ q</strong>
+                        <p>Este circuito requiere una sola compuerta AND con dos entradas (p y q).</p>
+                    </div>
+                    
+                    <div class="example">
+                        <strong>Ejemplo: Circuito para (p ∨ q) ∧ ¬r</strong>
+                        <p>Este circuito requiere:
+                        <ul>
+                            <li>Una compuerta OR para (p ∨ q)</li>
+                            <li>Una compuerta NOT para ¬r</li>
+                            <li>Una compuerta AND para combinar los resultados</li>
+                        </ul>
+                        </p>
+                    </div>
+                    
+                    <div class="important">
+                        <strong>Importante:</strong> Los circuitos lógicos son la base de los sistemas digitales y se utilizan en computadoras, teléfonos y todo tipo de dispositivos electrónicos.
+                    </div>
+                `
+            },
+            chapter3: {
+                title: "Capítulo 3: Métodos de Demostración",
+                content: `
+                    <h3>3.1 Demostración Directa</h3>
+                    <p>En una demostración directa, partimos de las premisas y mediante inferencias lógicas llegamos a la conclusión.</p>
+                    
+                    <div class="example">
+                        <strong>Ejemplo:</strong> Demostrar que "Si n es par, entonces n² es par".
+                        <p>Solución: Si n es par, entonces n = 2k para algún entero k. Entonces n² = (2k)² = 4k² = 2(2k²), que es par.</p>
+                    </div>
+                    
+                    <h3>3.2 Demostración por Contradicción</h3>
+                    <p>En una demostración por contradicción, suponemos que la conclusión es falsa y llegamos a una contradicción.</p>
+                    
+                    <div class="example">
+                        <strong>Ejemplo:</strong> Demostrar que "√2 es irracional".
+                        <p>Solución: Supongamos que √2 es racional. Entonces √2 = a/b donde a y b son enteros coprimos. Elevando al cuadrado: 2 = a²/b², entonces a² = 2b². Esto implica que a² es par, por lo que a es par. Sea a = 2c. Entonces (2c)² = 2b², por lo que 4c² = 2b², entonces b² = 2c², por lo que b² es par y b es par. Pero si a y b son pares, entonces no son coprimos, lo que contradice nuestra suposición. Por lo tanto, √2 es irracional.</p>
+                    </div>
+                    
+                    <h3>3.3 Demostración por Inducción</h3>
+                    <p>La inducción matemática se utiliza para demostrar proposiciones que dependen de un parámetro natural n.</p>
+                    
+                    <div class="important">
+                        <strong>Pasos de la inducción matemática:</strong>
+                        <ol>
+                            <li><strong>Base inductiva:</strong> Demostrar que la proposición es verdadera para n = 1.</li>
+                            <li><strong>Hipótesis inductiva:</strong> Suponer que la proposición es verdadera para n = k.</li>
+                            <li><strong>Paso inductivo:</strong> Demostrar que la proposición es verdadera para n = k + 1.</li>
+                        </ol>
+                    </div>
+                `
+            }
         };
 
         // Sistema de aprendizaje de la IA
@@ -1020,6 +1430,10 @@ p ∨ q, p ∧ q, ¬p`,
         let currentExerciseType = 'basic';
         let currentExerciseIndex = 0;
         let messageCounter = 0;
+        
+        // Variables para el módulo de lectura
+        let currentChapter = 1;
+        let explanationLevel = 'normal';
 
         // Respuestas predefinidas del asistente IA mejorado
         const aiResponses = {
@@ -1033,6 +1447,142 @@ p ∨ q, p ∧ q, ¬p`,
             "circuito": "Los circuitos lógicos representan proposiciones usando compuertas AND, OR y NOT. Cada compuerta corresponde a un operador lógico específico.",
             "default": "No estoy seguro de entender completamente. ¿Podrías reformular tu pregunta o ser más específico? Estoy aquí para ayudarte con conceptos de lógica proposicional."
         };
+
+        // Funciones para el módulo de lectura
+        function openReadingModal() {
+            document.getElementById('readingModal').style.display = 'flex';
+            loadChapter(currentChapter);
+        }
+
+        function closeReadingModal() {
+            document.getElementById('readingModal').style.display = 'none';
+        }
+
+        function loadChapter(chapterNumber) {
+            const chapterKey = `chapter${chapterNumber}`;
+            if (bookContent[chapterKey]) {
+                document.getElementById('bookContent').innerHTML = bookContent[chapterKey].content;
+                document.getElementById('currentChapter').textContent = bookContent[chapterKey].title;
+                
+                // Actualizar botones de navegación
+                document.getElementById('prevChapter').disabled = chapterNumber === 1;
+                document.getElementById('nextChapter').disabled = chapterNumber === 3;
+                
+                // Mostrar explicación inicial
+                updateExplanation();
+            }
+        }
+
+        function changeChapter(direction) {
+            currentChapter += direction;
+            loadChapter(currentChapter);
+        }
+
+        function changeExplanationLevel(level) {
+            explanationLevel = level;
+            
+            // Actualizar botones
+            document.getElementById('btnBasic').classList.toggle('active', level === 'basic');
+            document.getElementById('btnNormal').classList.toggle('active', level === 'normal');
+            document.getElementById('btnAdvanced').classList.toggle('active', level === 'advanced');
+            
+            // Actualizar explicación
+            updateExplanation();
+        }
+
+        function updateExplanation() {
+            let explanation = "";
+            
+            switch(currentChapter) {
+                case 1:
+                    if (explanationLevel === 'basic') {
+                        explanation = "En este capítulo aprenderás qué es una proposición y cómo se combinan usando conectivos lógicos. Es como aprender las palabras y reglas gramaticales básicas de un nuevo idioma.";
+                    } else if (explanationLevel === 'normal') {
+                        explanation = "La lógica proposicional es la base de todo razonamiento matemático. Aquí aprenderás a identificar proposiciones, entender conectivos lógicos y construir tablas de verdad. Presta especial atención a cómo funciona el condicional (→), ya que suele causar confusión.";
+                    } else {
+                        explanation = "Este capítulo sienta las bases para el razonamiento formal. Más allá de los conceptos básicos, reflexiona sobre cómo estos principios se aplican en programación, electrónica y matemáticas avanzadas. Las tablas de verdad son el primer paso hacia el álgebra booleana, fundamental en ciencias de la computación.";
+                    }
+                    break;
+                case 2:
+                    if (explanationLevel === 'basic') {
+                        explanation = "Los circuitos lógicos son la forma práctica de aplicar la lógica proposicional. Las compuertas AND, OR y NOT son como piezas de Lego que puedes combinar para construir circuitos más complejos.";
+                    } else if (explanationLevel === 'normal') {
+                        explanation = "Este capítulo conecta la teoría con aplicaciones prácticas. Cada compuerta lógica corresponde directamente a un operador lógico. Al diseñar circuitos, estás implementando físicamente las expresiones lógicas que aprendiste en el capítulo anterior.";
+                    } else {
+                        explanation = "Los circuitos lógicos son la base de todos los sistemas digitales modernos. Profundizando, puedes explorar cómo se minimizan circuitos usando álgebra booleana, o cómo se implementan físicamente con transistores. Este conocimiento es esencial en ingeniería electrónica y arquitectura de computadoras.";
+                    }
+                    break;
+                case 3:
+                    if (explanationLevel === 'basic') {
+                        explanation = "Las demostraciones matemáticas son como puzzles lógicos. Aquí aprenderás diferentes métodos para demostrar que algo es verdadero, usando lo que aprendiste sobre lógica en los capítulos anteriores.";
+                    } else if (explanationLevel === 'normal') {
+                        explanation = "Este capítulo te enseña a estructurar argumentos lógicos de manera rigurosa. Cada método de demostración tiene su lugar: la directa para casos simples, la contradicción para resultados de negación, y la inducción para propiedades que dependen de números naturales.";
+                    } else {
+                        explanation = "Las técnicas de demostración son el corazón del quehacer matemático profesional. Más allá de estos métodos básicos, existen variantes como la inducción fuerte o la demostración por casos. Dominar estas técnicas te preparará para matemáticas avanzadas y investigación.";
+                    }
+                    break;
+            }
+            
+            document.getElementById('iaExplanation').textContent = explanation;
+        }
+
+        function askQuestion(type) {
+            let question = "";
+            let answer = "";
+            
+            switch(type) {
+                case 'explicame este concepto':
+                    if (currentChapter === 1) {
+                        question = "Explicación de proposiciones y conectivos lógicos";
+                        answer = "Imagina que las proposiciones son bloques de construcción y los conectivos lógicos son las formas de unirlos. Por ejemplo, la conjunción (AND) es como decir 'ambos deben ser verdaderos', mientras que la disyunción (OR) es como decir 'al menos uno debe ser verdadero'. El condicional (→) es más subtle: p → q solo es falsa cuando p es verdadera pero q es falsa. Es como una promesa: 'Si estudias, entonces aprobarás' solo se rompe si estudias pero no apruebas.";
+                    } else if (currentChapter === 2) {
+                        question = "Explicación de compuertas lógicas";
+                        answer = "Las compuertas lógicas son como interruptores inteligentes. La compuerta AND enciende solo cuando todas sus entradas están activadas. La OR se enciende cuando al menos una entrada está activada. La NOT simplemente invierte: si la entrada es 1, la salida es 0, y viceversa. Juntas, pueden crear circuitos complejos como los que hay dentro de tu teléfono o computadora.";
+                    } else {
+                        question = "Explicación de métodos de demostración";
+                        answer = "Cada método de demostración es una estrategia diferente para convencer de que algo es verdadero. La demostración directa es como seguir un camino paso a paso. La contradicción es como decir 'si esto fuera falso, llegaría a un absurdo'. La inducción es como una fila de fichas de dominó: si la primera cae (caso base) y cada ficha hace caer a la siguiente (paso inductivo), entonces todas caerán.";
+                    }
+                    break;
+                case 'ejemplo de este tema':
+                    if (currentChapter === 1) {
+                        question = "Ejemplo de lógica proposicional";
+                        answer = "Supongamos que p: 'Está lloviendo' y q: 'Tengo paraguas'. Entonces:\n- p ∧ q: 'Está lloviendo y tengo paraguas' → Solo verdadero si ambas son ciertas\n- p ∨ q: 'Está lloviendo o tengo paraguas' → Falso solo si no llueve y no tengo paraguas\n- p → q: 'Si está lloviendo, entonces tengo paraguas' → Falso solo si llueve pero no tengo paraguas";
+                    } else if (currentChapter === 2) {
+                        question = "Ejemplo de circuito lógico";
+                        answer = "Para la expresión (p ∧ q) ∨ r:\n1. Necesitas una compuerta AND para p ∧ q\n2. Esta salida se conecta a una compuerta OR junto con r\n3. El resultado final es 1 cuando: (p y q son 1) O (r es 1)\nEste circuito podría representar un sistema de alarma que se activa cuando (hay humo Y hay calor) O cuando alguien presiona manualmente el botón de emergencia.";
+                    } else {
+                        question = "Ejemplo de demostración";
+                        answer = "Teorema: La suma de dos números pares es par.\nDemostración directa:\n1. Sean a y b números pares, entonces a = 2m, b = 2n para algunos enteros m, n\n2. a + b = 2m + 2n = 2(m + n)\n3. Como m + n es entero, a + b es múltiplo de 2, es decir, par.\nQED";
+                    }
+                    break;
+                case 'ejercicio relacionado':
+                    if (currentChapter === 1) {
+                        question = "Ejercicio de lógica proposicional";
+                        answer = "Ejercicio: Si p es verdadera, q es falsa y r es verdadera, determina el valor de:\n(¬p ∨ q) → (q ∧ r)\n\nSugerencia: Primero encuentra los valores de ¬p, ¬p ∨ q, y q ∧ r. Luego aplica la tabla de verdad del condicional.";
+                    } else if (currentChapter === 2) {
+                        question = "Ejercicio de circuitos lógicos";
+                        answer = "Ejercicio: Diseña un circuito lógico para la expresión ¬(p ∨ q) ∧ r\n\nSugerencia: Necesitarás una compuerta OR para p ∨ q, una NOT para negar ese resultado, y una AND para combinar con r.";
+                    } else {
+                        question = "Ejercicio de demostración";
+                        answer = "Ejercicio: Demuestra por contradicción que no existe el mayor número primo.\n\nSugerencia: Supón que existe un número primo mayor que todos. Considera el producto de todos los primos más 1. ¿Qué propiedades tiene este número?";
+                    }
+                    break;
+                case 'aplicación práctica':
+                    if (currentChapter === 1) {
+                        question = "Aplicación de lógica proposicional";
+                        answer = "La lógica proposicional se usa en:\n- Programación: Condiciones en sentencias if, bucles\n- Bases de datos: Consultas con operadores AND, OR, NOT\n- Derecho: Análisis de contratos y regulaciones\n- Electrónica: Diseño de circuitos digitales\n- Inteligencia artificial: Sistemas expertos y razonamiento automatizado";
+                    } else if (currentChapter === 2) {
+                        question = "Aplicación de circuitos lógicos";
+                        answer = "Los circuitos lógicos son la base de:\n- Procesadores de computadoras: CPUs están compuestas de millones de compuertas\n- Memorias: Celdas de memoria usan circuitos flip-flop\n- Sistemas de control: Desde semáforos hasta naves espaciales\n- Dispositivos cotidianos: Calculadoras, relojes digitales, controles remotos";
+                    } else {
+                        question = "Aplicación de métodos de demostración";
+                        answer = "Las técnicas de demostración son esenciales en:\n- Matemáticas puras: Para establecer verdades con certeza absoluta\n- Ciencias de la computación: Verificación formal de algoritmos\n- Ingeniería: Demostrar que un diseño cumple especificaciones\n- Criptografía: Probar la seguridad de protocolos\n- Filosofía: Análisis de argumentos y falacias";
+                    }
+                    break;
+            }
+            
+            document.getElementById('iaExplanation').textContent = answer;
+        }
 
         // Función para mostrar notificación de aprendizaje
         function showLearningNotice(message) {
@@ -1177,7 +1727,7 @@ p ∨ q, p ∧ q, ¬p`,
             }
             
             if (lowerSolution.includes("→") || lowerSolution.includes("entonces") || lowerSolution.includes("condicional")) {
-                analysis += `<p><i class="fas fa-check-circle" style="color: var(--success);"></i> Correcto: Has reconocido el condicional (→).</p>`;
+                analysis += `<p><i class="fas fa-check-circle" style="color: var(--success;);"></i> Correcto: Has reconocido el condicional (→).</p>`;
             }
             
             // Detectar posibles errores
