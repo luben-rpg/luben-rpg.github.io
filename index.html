@@ -19,6 +19,7 @@
             --user-bubble: #f0f4f8;
             --learning: #9b59b6;
             --reading: #16a085;
+            --formula: #8e44ad;
         }
         
         * {
@@ -802,6 +803,149 @@
             background: var(--secondary);
             color: white;
         }
+        
+        /* Nuevos estilos para el área de fórmulas */
+        .formula-input-container {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--formula);
+        }
+        
+        .formula-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .formula-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+        }
+        
+        .formula-input input:focus {
+            border-color: var(--formula);
+            outline: none;
+        }
+        
+        .formula-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .formula-btn {
+            padding: 8px 12px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+        
+        .formula-btn:hover {
+            background: #d0d0d0;
+        }
+        
+        .formula-examples {
+            margin-top: 15px;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .formula-examples h4 {
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+        
+        .example-chip {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 0 5px 5px 0;
+            background: white;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .example-chip:hover {
+            background: #d0e5fc;
+        }
+        
+        .formula-result {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .simplified-formula {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            padding: 10px;
+            background: #f0f9f0;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid var(--success);
+        }
+        
+        .evaluation-steps {
+            margin-top: 15px;
+        }
+        
+        .step {
+            padding: 8px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .evaluation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        
+        .evaluation-table th, .evaluation-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        .evaluation-table th {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .symbol-guide {
+            margin-top: 15px;
+            padding: 10px;
+            background: #fff9e6;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .symbol-item {
+            display: inline-block;
+            margin-right: 15px;
+        }
+        
+        .symbol {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: var(--formula);
+        }
     </style>
 </head>
 <body>
@@ -811,7 +955,7 @@
                 <i class="fas fa-brain"></i> IA con Aprendizaje
             </div>
             <h1><i class="fas fa-robot"></i> Analizador IA Avanzado - Lógica Proposicional</h1>
-            <p class="subtitle">IA mejorada que aprende de tus interacciones y mejora sus explicaciones</p>
+            <p class="subtitle">IA mejorada que resuelve ejercicios propuestos paso a paso</p>
             <button class="btn-reading" onclick="openReadingModal()">
                 <i class="fas fa-book"></i> Leer Libro con Asistencia IA
             </button>
@@ -824,6 +968,7 @@
                 <button class="exercise-type-btn active" onclick="changeExerciseType('basic')">Básico</button>
                 <button class="exercise-type-btn" onclick="changeExerciseType('truth-table')">Tablas de Verdad</button>
                 <button class="exercise-type-btn" onclick="changeExerciseType('circuit')">Circuitos Lógicos</button>
+                <button class="exercise-type-btn" onclick="changeExerciseType('formula')">Resolver Fórmula</button>
             </div>
             
             <div class="exercise">
@@ -839,6 +984,50 @@
                 
                 <div class="hint-box">
                     <strong><i class="fas fa-lightbulb"></i> Sugerencia:</strong> Recuerda que una conjunción (∧) es verdadera solo cuando ambas proposiciones son verdaderas.
+                </div>
+            </div>
+            
+            <!-- Nuevo contenedor para entrada de fórmulas (inicialmente oculto) -->
+            <div id="formula-input-container" style="display: none;">
+                <h3><i class="fas fa-square-root-alt"></i> Resolver Fórmula Lógica</h3>
+                
+                <div class="formula-input">
+                    <input type="text" id="formulaInput" placeholder="Ingresa la fórmula lógica (ej: p ∧ q, ¬p ∨ q, p → q)">
+                    <button class="btn-primary" onclick="analyzeFormula()">
+                        <i class="fas fa-calculator"></i> Analizar
+                    </button>
+                </div>
+                
+                <div class="formula-buttons">
+                    <button class="formula-btn" onclick="insertSymbol('¬')">¬ (NO)</button>
+                    <button class="formula-btn" onclick="insertSymbol('∧')">∧ (Y)</button>
+                    <button class="formula-btn" onclick="insertSymbol('∨')">∨ (O)</button>
+                    <button class="formula-btn" onclick="insertSymbol('→')">→ (ENTONCES)</button>
+                    <button class="formula-btn" onclick="insertSymbol('↔')">↔ (SI Y SOLO SI)</button>
+                    <button class="formula-btn" onclick="insertSymbol('(')">(</button>
+                    <button class="formula-btn" onclick="insertSymbol(')')">)</button>
+                </div>
+                
+                <div class="symbol-guide">
+                    <strong>Guía de símbolos:</strong>
+                    <div class="symbol-item"><span class="symbol">¬</span> Negación</div>
+                    <div class="symbol-item"><span class="symbol">∧</span> Conjunción (Y)</div>
+                    <div class="symbol-item"><span class="symbol">∨</span> Disyunción (O)</div>
+                    <div class="symbol-item"><span class="symbol">→</span> Condicional (Entonces)</div>
+                    <div class="symbol-item"><span class="symbol">↔</span> Bicondicional (Si y solo si)</div>
+                </div>
+                
+                <div class="formula-examples">
+                    <h4>Ejemplos para probar:</h4>
+                    <div class="example-chip" onclick="setFormulaExample('p ∧ q')">p ∧ q</div>
+                    <div class="example-chip" onclick="setFormulaExample('¬p ∨ q')">¬p ∨ q</div>
+                    <div class="example-chip" onclick="setFormulaExample('p → q')">p → q</div>
+                    <div class="example-chip" onclick="setFormulaExample('(p ∨ q) ∧ ¬p')">(p ∨ q) ∧ ¬p</div>
+                    <div class="example-chip" onclick="setFormulaExample('p ↔ (q ∨ r)')">p ↔ (q ∨ r)</div>
+                </div>
+                
+                <div id="formulaResult" class="formula-result" style="display: none;">
+                    <!-- Aquí se mostrarán los resultados del análisis -->
                 </div>
             </div>
             
@@ -900,12 +1089,12 @@
             
             <div class="chat-container" id="chatContainer">
                 <div class="message ai-message">
-                    ¡Hola! Soy tu asistente avanzado de lógica proposicional. Analizaré tus respuestas escritas y aprenderé de nuestras interacciones para mejorar mis explicaciones.
+                    ¡Hola! Soy tu asistente avanzado de lógica proposicional. Ahora puedo resolver fórmulas lógicas que me proporciones. Escribe una fórmula o sube una imagen con un ejercicio.
                 </div>
                 <div class="message ai-message">
-                    Puedes escribir tus soluciones, subir imágenes de problemas o hacerme preguntas directas.
+                    Puedes usar los símbolos: ¬ (negación), ∧ (conjunción), ∨ (disyunción), → (condicional), ↔ (bicondicional)
                     <div class="suggestion-chips">
-                        <div class="suggestion-chip" onclick="sendSuggestion('¿Cómo funciona la conjunción?')">¿Cómo funciona la conjunción?</div>
+                        <div class="suggestion-chip" onclick="sendSuggestion('¿Cómo analizar p ∧ q?')">¿Cómo analizar p ∧ q?</div>
                         <div class="suggestion-chip" onclick="sendSuggestion('Explícame las tablas de verdad')">Explícame las tablas de verdad</div>
                         <div class="suggestion-chip" onclick="sendSuggestion('Necesito un ejemplo de circuito')">Necesito un ejemplo de circuito</div>
                     </div>
@@ -1219,7 +1408,7 @@ p ∨ q, p ∧ q, ¬p`,
                     
                     <div class="example">
                         <strong>Ejemplo:</strong> Demostrar que "√2 es irracional".
-                        <p>Solución: Supongamos que √2 es racional. Entonces √2 = a/b donde a y b son enteros coprimos. Elevando al cuadrado: 2 = a²/b², entonces a² = 2b². Esto implica que a² es par, por lo que a es par. Sea a = 2c. Entonces (2c)² = 2b², por lo que 4c² = 2b², entonces b² = 2c², por lo que b² es par y b es par. Pero si a y b son pares, entonces no son coprimos, lo que contradice nuestra suposición. Por lo tanto, √2 es irracional.</p>
+                        <p>Solución: Supongamos que √2 es racional. Entonces √2 = a/b donde a and b son enteros coprimos. Elevando al cuadrado: 2 = a²/b², entonces a² = 2b². Esto implica que a² es par, por lo que a es par. Sea a = 2c. Entonces (2c)² = 2b², por lo que 4c² = 2b², entonces b² = 2c², por lo que b² es par y b es par. Pero si a y b son pares, entonces no son coprimos, lo que contradice nuestra suposición. Por lo tanto, √2 es irracional.</p>
                     </div>
                     
                     <h3>3.3 Demostración por Inducción</h3>
@@ -1242,7 +1431,8 @@ p ∨ q, p ∧ q, ¬p`,
             userKnowledge: {
                 basic: { score: 0, attempts: 0, correct: 0 },
                 truthTable: { score: 0, attempts: 0, correct: 0 },
-                circuit: { score: 0, attempts: 0, correct: 0 }
+                circuit: { score: 0, attempts: 0, correct: 0 },
+                formula: { score: 0, attempts: 0, correct: 0 }
             },
             explanationLevel: 1, // 1: Básico, 2: Intermedio, 3: Avanzado
             userPreferences: {
@@ -1372,7 +1562,8 @@ p ∨ q, p ∧ q, ¬p`,
                 const details = {
                     basic: "\n\nRecuerda que en lógica proposicional trabajamos con valores de verdad binarios: verdadero (1) y falso (0).",
                     truthTable: "\n\nCada variable proposicional tiene dos valores posibles, por lo que para n variables necesitarás 2^n filas en tu tabla de verdad.",
-                    circuit: "\n\nLas compuertas lógicas se pueden combinar de muchas formas para crear circuitos más complejos que representen expresiones lógicas."
+                    circuit: "\n\nLas compuertas lógicas se pueden combinar de muchas formas para crear circuitos más complejos que representen expresiones lógicas.",
+                    formula: "\n\nAl analizar fórmulas complejas, es útil descomponerlas en partes más pequeñas y evaluar cada componente por separado."
                 };
                 
                 return details[topic] || "";
@@ -1383,7 +1574,8 @@ p ∨ q, p ∧ q, ¬p`,
                 const examples = {
                     basic: "\n\nPor ejemplo, si p es verdadero y q es falso, entonces p ∧ q es falso, pero p ∨ q es verdadero.",
                     truthTable: "\n\nPor ejemplo, para una expresión con 2 variables, la tabla de verdad tendrá 4 filas que representan todas las combinaciones posibles.",
-                    circuit: "\n\nPor ejemplo, la expresión p ∧ q se representaría con una compuerta AND que toma las entradas p y q."
+                    circuit: "\n\nPor ejemplo, la expresión p ∧ q se representaría con una compuerta AND que toma las entradas p y q.",
+                    formula: "\n\nPor ejemplo, la fórmula ¬(p ∨ q) es equivalente a ¬p ∧ ¬q según las leyes de De Morgan."
                 };
                 
                 return examples[topic] || "";
@@ -1394,7 +1586,8 @@ p ∨ q, p ∧ q, ¬p`,
                 const insights = {
                     basic: "\n\nDesde una perspectiva más avanzada, puedes notar que el operador condicional (→) no es conmutativo, a diferencia de la conjunción y disyunción.",
                     truthTable: "\n\nUna perspectiva avanzada: las tablas de verdad son la base para la implementación de circuitos digitales y álgebra booleana.",
-                    circuit: "\n\nPerspectiva avanzada: estos circuitos lógicos son la base de los procesadores modernos y se implementan físicamente con transistores."
+                    circuit: "\n\nPerspectiva avanzada: estos circuitos lógicos son la base de los procesadores modernos y se implementan físicamente con transistores.",
+                    formula: "\n\nPerspectiva avanzada: el análisis de fórmulas lógicas es fundamental en ciencias de la computación, especialmente en verificación formal y diseño de algoritmos."
                 };
                 
                 return insights[topic] || "";
@@ -1445,6 +1638,7 @@ p ∨ q, p ∧ q, ¬p`,
             "condicional": "El condicional (p → q) es falso solo cuando p es verdadera y q es falsa. Su tabla de verdad es: p=1, q=1 → 1; p=1, q=0 → 0; p=0, q=1 → 1; p=0, q=0 → 1.",
             "tabla": "Una tabla de verdad muestra todos los posibles valores de verdad de una proposición compuesta. Para n variables, hay 2^n combinaciones posibles.",
             "circuito": "Los circuitos lógicos representan proposiciones usando compuertas AND, OR y NOT. Cada compuerta corresponde a un operador lógico específico.",
+            "formula": "Puedo analizar fórmulas lógicas que me proporciones. Usa los símbolos: ¬ (negación), ∧ (conjunción), ∨ (disyunción), → (condicional), ↔ (bicondicional).",
             "default": "No estoy seguro de entender completamente. ¿Podrías reformular tu pregunta o ser más específico? Estoy aquí para ayudarte con conceptos de lógica proposicional."
         };
 
@@ -1625,8 +1819,19 @@ p ∨ q, p ∧ q, ¬p`,
             });
             event.target.classList.add('active');
             
-            // Cargar nuevo ejercicio
-            loadExercise();
+            // Mostrar/ocultar áreas según el tipo
+            if (type === 'formula') {
+                document.getElementById('formula-input-container').style.display = 'block';
+                document.querySelector('.input-area').style.display = 'none';
+                document.querySelector('.exercise').style.display = 'none';
+            } else {
+                document.getElementById('formula-input-container').style.display = 'none';
+                document.querySelector('.input-area').style.display = 'flex';
+                document.querySelector('.exercise').style.display = 'block';
+                
+                // Cargar nuevo ejercicio
+                loadExercise();
+            }
             
             addMessage(`He cambiado a ejercicios de ${getExerciseTypeName(type)}. ¿Necesitas ayuda con este tipo de problemas?`, "ai");
         }
@@ -1635,13 +1840,18 @@ p ∨ q, p ∧ q, ¬p`,
             const names = {
                 'basic': 'lógica básica',
                 'truth-table': 'tablas de verdad',
-                'circuit': 'circuitos lógicos'
+                'circuit': 'circuitos lógicos',
+                'formula': 'resolución de fórmulas'
             };
             return names[type] || type;
         }
         
         // Función para cargar el ejercicio actual
         function loadExercise() {
+            if (currentExerciseType === 'formula') {
+                return; // No cargar ejercicio predefinido para el tipo fórmula
+            }
+            
             const exercise = exercises[currentExerciseType][currentExerciseIndex];
             document.querySelector('.exercise-content').textContent = exercise.content;
             document.querySelector('.exercise-difficulty').textContent = `(${getExerciseTypeName(currentExerciseType)})`;
@@ -1727,7 +1937,7 @@ p ∨ q, p ∧ q, ¬p`,
             }
             
             if (lowerSolution.includes("→") || lowerSolution.includes("entonces") || lowerSolution.includes("condicional")) {
-                analysis += `<p><i class="fas fa-check-circle" style="color: var(--success;);"></i> Correcto: Has reconocido el condicional (→).</p>`;
+                analysis += `<p><i class="fas fa-check-circle" style="color: var(--success);"></i> Correcto: Has reconocido el condicional (→).</p>`;
             }
             
             // Detectar posibles errores
@@ -2071,6 +2281,297 @@ p ∨ q, p ∧ q, ¬p`,
             });
         }
 
+        // NUEVAS FUNCIONES PARA EL ANALIZADOR DE FÓRMULAS
+        
+        // Función para insertar símbolos en el input de fórmula
+        function insertSymbol(symbol) {
+            const formulaInput = document.getElementById('formulaInput');
+            const startPos = formulaInput.selectionStart;
+            const endPos = formulaInput.selectionEnd;
+            
+            formulaInput.value = formulaInput.value.substring(0, startPos) + 
+                                symbol + 
+                                formulaInput.value.substring(endPos);
+            
+            // Colocar el cursor después del símbolo insertado
+            formulaInput.selectionStart = formulaInput.selectionEnd = startPos + symbol.length;
+            formulaInput.focus();
+        }
+        
+        // Función para establecer un ejemplo de fórmula
+        function setFormulaExample(formula) {
+            document.getElementById('formulaInput').value = formula;
+            document.getElementById('formulaInput').focus();
+        }
+        
+        // Función para analizar la fórmula ingresada
+        function analyzeFormula() {
+            const formula = document.getElementById('formulaInput').value.trim();
+            
+            if (!formula) {
+                alert('Por favor, ingresa una fórmula lógica');
+                return;
+            }
+            
+            // Mostrar indicador de typing
+            showTypingIndicator();
+            
+            // Simular procesamiento
+            setTimeout(() => {
+                hideTypingIndicator();
+                
+                // Analizar la fórmula
+                const result = parseFormula(formula);
+                
+                // Mostrar resultados
+                displayFormulaResult(result, formula);
+                
+                // Añadir mensaje al chat
+                addMessage(`He analizado la fórmula: ${formula}. ¿Necesitas que explique algún paso en detalle?`, "ai");
+                
+                // Actualizar conocimiento del usuario
+                aiLearningSystem.updateUserKnowledge('formula', true);
+            }, 1500);
+        }
+        
+        // Función para parsear y analizar la fórmula
+        function parseFormula(formula) {
+            // Limpiar y normalizar la fórmula
+            const cleanFormula = formula.replace(/\s+/g, '');
+            
+            // Validar caracteres permitidos
+            if (!/^[a-zA-Z¬∧∨→↔()]+$/.test(cleanFormula)) {
+                return {
+                    valid: false,
+                    error: "La fórmula contiene caracteres no válidos. Solo se permiten letras (variables) y los operadores lógicos: ¬, ∧, ∨, →, ↔"
+                };
+            }
+            
+            // Validar paréntesis balanceados
+            if (!areParenthesesBalanced(cleanFormula)) {
+                return {
+                    valid: false,
+                    error: "Los paréntesis no están balanceados correctamente"
+                };
+            }
+            
+            // Extraer variables
+            const variables = extractVariables(cleanFormula);
+            
+            // Generar tabla de verdad
+            const truthTable = generateTruthTable(cleanFormula, variables);
+            
+            // Simplificar la expresión (si es posible)
+            const simplified = simplifyExpression(cleanFormula);
+            
+            // Determinar si es tautología, contradicción o contingencia
+            const expressionType = determineExpressionType(truthTable);
+            
+            return {
+                valid: true,
+                formula: cleanFormula,
+                variables: variables,
+                truthTable: truthTable,
+                simplified: simplified,
+                type: expressionType,
+                steps: generateSolutionSteps(cleanFormula, variables)
+            };
+        }
+        
+        // Función para verificar paréntesis balanceados
+        function areParenthesesBalanced(formula) {
+            let balance = 0;
+            
+            for (let char of formula) {
+                if (char === '(') balance++;
+                if (char === ')') balance--;
+                
+                if (balance < 0) return false;
+            }
+            
+            return balance === 0;
+        }
+        
+        // Función para extraer variables de la fórmula
+        function extractVariables(formula) {
+            const variables = new Set();
+            
+            for (let char of formula) {
+                if (/[a-zA-Z]/.test(char)) {
+                    variables.add(char);
+                }
+            }
+            
+            return Array.from(variables).sort();
+        }
+        
+        // Función para generar la tabla de verdad
+        function generateTruthTable(formula, variables) {
+            const rows = Math.pow(2, variables.length);
+            const table = [];
+            
+            // Generar todas las combinaciones de valores de verdad
+            for (let i = 0; i < rows; i++) {
+                const row = {};
+                
+                // Asignar valores a las variables
+                for (let j = 0; j < variables.length; j++) {
+                    const variable = variables[j];
+                    // Usar bits para representar valores de verdad
+                    row[variable] = Boolean((i >> (variables.length - 1 - j)) & 1);
+                }
+                
+                // Evaluar la fórmula con estos valores
+                row.result = evaluateFormula(formula, row);
+                table.push(row);
+            }
+            
+            return table;
+        }
+        
+        // Función para evaluar una fórmula con valores dados
+        function evaluateFormula(formula, values) {
+            // Convertir la fórmula a notación que JavaScript pueda evaluar
+            let jsFormula = formula
+                .replace(/¬/g, '!')
+                .replace(/∧/g, '&&')
+                .replace(/∨/g, '||')
+                .replace(/→/g, '=>')
+                .replace(/↔/g, '==');
+            
+            // Reemplazar variables con sus valores
+            for (let variable in values) {
+                const regex = new RegExp(variable, 'g');
+                jsFormula = jsFormula.replace(regex, values[variable]);
+            }
+            
+            // Reemplazar el operador => (implicación) con su equivalente lógico
+            jsFormula = jsFormula.replace(/=>/g, '? !');
+            
+            // Evaluar la expresión
+            try {
+                // Para manejar la implicación (p → q equivale a ¬p ∨ q)
+                if (jsFormula.includes('?')) {
+                    const parts = jsFormula.split('?');
+                    if (parts.length === 2) {
+                        const [left, right] = parts;
+                        return !eval(left) || eval(right);
+                    }
+                }
+                
+                return eval(jsFormula);
+            } catch (e) {
+                console.error("Error evaluando fórmula:", e);
+                return null;
+            }
+        }
+        
+        // Función para simplificar una expresión (versión básica)
+        function simplifyExpression(formula) {
+            // Esta es una simplificación básica, se puede mejorar
+            let simplified = formula
+                .replace(/¬¬/g, '') // Doble negación
+                .replace(/\(([a-zA-Z])\)/g, '$1'); // Paréntesis innecesarios alrededor de variables
+            
+            // Intenta algunas simplificaciones comunes
+            if (formula === '(p∧q)∨(p∧¬q)') return 'p';
+            if (formula === '(p∨q)∧(p∨¬q)') return 'p';
+            if (formula === 'p∨¬p') return '1'; // Tautología
+            if (formula === 'p∧¬p') return '0'; // Contradicción
+            
+            return simplified;
+        }
+        
+        // Función para determinar el tipo de expresión
+        function determineExpressionType(truthTable) {
+            const allTrue = truthTable.every(row => row.result);
+            const allFalse = truthTable.every(row => !row.result);
+            
+            if (allTrue) return 'tautología';
+            if (allFalse) return 'contradicción';
+            return 'contingencia';
+        }
+        
+        // Función para generar pasos de solución
+        function generateSolutionSteps(formula, variables) {
+            const steps = [];
+            
+            steps.push(`1. Identificamos las variables: ${variables.join(', ')}`);
+            steps.push(`2. La fórmula a evaluar es: ${formula}`);
+            steps.push(`3. Construimos la tabla de verdad con ${Math.pow(2, variables.length)} filas`);
+            steps.push("4. Evaluamos la fórmula para cada combinación de valores");
+            
+            // Añadir más pasos según la complejidad de la fórmula
+            if (formula.includes('→')) {
+                steps.push("5. Recordemos que p → q es equivalente a ¬p ∨ q");
+            }
+            
+            if (formula.includes('↔')) {
+                steps.push("5. Recordemos que p ↔ q es equivalente a (p → q) ∧ (q → p)");
+            }
+            
+            return steps;
+        }
+        
+        // Función para mostrar los resultados del análisis
+        function displayFormulaResult(result, originalFormula) {
+            const resultContainer = document.getElementById('formulaResult');
+            
+            if (!result.valid) {
+                resultContainer.innerHTML = `
+                    <div style="color: var(--accent);">
+                        <h4><i class="fas fa-exclamation-circle"></i> Error en la fórmula</h4>
+                        <p>${result.error}</p>
+                    </div>
+                `;
+                resultContainer.style.display = 'block';
+                return;
+            }
+            
+            let html = `
+                <h4><i class="fas fa-check-circle" style="color: var(--success);"></i> Análisis de: ${originalFormula}</h4>
+                <p><strong>Variables identificadas:</strong> ${result.variables.join(', ')}</p>
+                <p><strong>Tipo de expresión:</strong> ${result.type}</p>
+            `;
+            
+            if (result.simplified && result.simplified !== result.formula) {
+                html += `
+                    <div class="simplified-formula">
+                        <strong>Fórmula simplificada:</strong> ${result.simplified}
+                    </div>
+                `;
+            }
+            
+            html += `
+                <h5>Tabla de Verdad:</h5>
+                <table class="evaluation-table">
+                    <tr>
+                        ${result.variables.map(v => `<th>${v}</th>`).join('')}
+                        <th>Resultado</th>
+                    </tr>
+            `;
+            
+            result.truthTable.forEach(row => {
+                html += `
+                    <tr>
+                        ${result.variables.map(v => `<td>${row[v] ? 'V' : 'F'}</td>`).join('')}
+                        <td><strong>${row.result ? 'V' : 'F'}</strong></td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                </table>
+                <div class="evaluation-steps">
+                    <h5>Pasos de la solución:</h5>
+                    ${result.steps.map(step => `<div class="step">${step}</div>`).join('')}
+                </div>
+            `;
+            
+            resultContainer.innerHTML = html;
+            resultContainer.style.display = 'block';
+        }
+
         // Configurar arrastrar y soltar
         const uploadArea = document.getElementById('uploadArea');
         
@@ -2104,7 +2605,7 @@ p ∨ q, p ∧ q, ¬p`,
             
             // Añadir mensaje de bienvenida del asistente
             setTimeout(() => {
-                addMessage("Puedes subir una imagen de un problema de lógica proposicional y te ayudaré a resolverlo paso a paso.", "ai");
+                addMessage("Ahora puedo analizar fórmulas lógicas que me escribas. Usa el botón 'Resolver Fórmula' para probarlo.", "ai");
             }, 1000);
         });
     </script>
